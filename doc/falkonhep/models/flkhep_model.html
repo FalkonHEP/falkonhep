@@ -49,7 +49,19 @@ class FalkonHEPModel(HEPModel):
 <span>(</span><span>reference_path, data_path, output_path, options)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Generic model</p></div>
+<div class="desc"><p>Generic model</p>
+<p>Create a model for HEP anomaly detection</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>reference_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>path of directory containing data used as reference data (set of .h5 files)</dd>
+<dt><strong><code>data_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>path of directory containing data used as datasample (set of .h5 files)</dd>
+<dt><strong><code>output_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>directory in which results will be stored (If the directory doesn't exist it will be created)</dd>
+<dt><strong><code>options</code></strong> :&ensp;<code>[type]</code></dt>
+<dd>[description]</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -67,6 +79,7 @@ class FalkonHEPModel(HEPModel):
 <ul class="hlist">
 <li><code><b><a title="falkonhep.models.hep_model.HEPModel" href="hep_model.html#falkonhep.models.hep_model.HEPModel">HEPModel</a></b></code>:
 <ul class="hlist">
+<li><code><a title="falkonhep.models.hep_model.HEPModel.generate_dataset" href="hep_model.html#falkonhep.models.hep_model.HEPModel.generate_dataset">generate_dataset</a></code></li>
 <li><code><a title="falkonhep.models.hep_model.HEPModel.learn_t" href="hep_model.html#falkonhep.models.hep_model.HEPModel.learn_t">learn_t</a></code></li>
 </ul>
 </li>
