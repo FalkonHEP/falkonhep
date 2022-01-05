@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>falkonhep.models.hep_model API documentation</title>
+<title>falkonhep.models.logflkhep_model API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -20,51 +20,60 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>falkonhep.models.hep_model</code></h1>
+<h1 class="title">Module <code>falkonhep.models.logflkhep_model</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import os
+<pre><code class="python">from falkon import LogisticFalkon
+from falkon.kernels import GaussianKernel
+from falkon.options import FalkonOptions
+from falkon.gsc_losses import WeightedCrossEntropyLoss
 
-class HEPModel:
-    &#34;&#34;&#34;
-    Generic model
-    &#34;&#34;&#34;
+from falkonhep.models import HEPModel
 
-    def __init__(self, reference_path, data_path, output_path, options):
-        
-        self.reference_path = reference_path
-        self.data_path = data_path
-        self.output_path = output_path
-        self.options = options
-        os.makedirs(output_path, exist_ok=True)
+class LogFalkonHEPModel(HEPModel):
 
     def learn_t(self, R, B, S, features, model_parameters, cut_mll = None, normalize = False):
-        &#34;&#34;&#34;
-        Method used to compute the t values 
+        &#34;&#34;&#34;Method used to compute the t values 
 
         Args:
             R (int): Size of the reference \(N_0\)
             B (int): Mean of the Poisson distribution from which the size of the background is sampled
             S (int): Mean of the Poisson distribution from which the size of the signal is sampled
             features (List): List containing the name of the features used
-            model_parameters (Map): Dictionary containing the parameters for the model used
+            model_parameters (Map): a map containing the parameters for LogistFalkon e.g.
+            ```
+            model_parameters = {
+                &#39;sigma&#39; : kernel lengthscale,
+                &#39;penalty_list&#39; : list of regularization parameters,
+                &#39;iter_list&#39; : list of number of CG iterations,
+                &#39;M&#39; : number of Nystrom centers,
+                &#39;cg_tol&#39; : [Optional] tolerance of CG (default 1e-7),
+                &#39;keops_active&#39; : [Optional] if pyKeops will be used (default &#34;no&#34;) 
+            }
+            ```
             cut_mll (int, optional): Cut MLL. Defaults to None.
             normalize (bool, optional): If True data will be normalized before fitting the model. Defaults to False.
-        &#34;&#34;&#34;        
+        &#34;&#34;&#34;
         pass
 
     def __build_model(self, model_parameters, weight):
-        &#34;&#34;&#34;Function used to build the model
 
-        Args:
-            model_parameters (Map): model parameters
-            weight (float): weight
-        &#34;&#34;&#34;        
-        pass</code></pre>
+        cg_tol = model_parameters[&#39;cg_tol&#39;] if &#39;cg_tol&#39; in model_parameters else 1e-7
+        keops_active = model_parameters[&#39;keops_active&#39;] if keops_active in model_parameters else &#34;no&#34;
+        kernel = GaussianKernel(model_parameters[&#39;sigma&#39;])
+        configuration = {
+            &#39;kernel&#39; : kernel,
+            &#39;penalty_list&#39; : model_parameters[&#39;penalty_list&#39;],
+            &#39;iter_list&#39; : model_parameters[&#39;iter_list&#39;],
+            &#39;M&#39; : model_parameters[&#39;M&#39;],
+            &#39;options&#39; : FalkonOptions(cg_tolerance=cg_tol, keops_active=keops_active),
+            &#39;loss&#39; : WeightedCrossEntropyLoss(kernel=kernel, neg_weight=weight)
+        }
+        return LogisticFalkon(**configuration)</code></pre>
 </details>
 </section>
 <section>
@@ -76,8 +85,8 @@ class HEPModel:
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="falkonhep.models.hep_model.HEPModel"><code class="flex name class">
-<span>class <span class="ident">HEPModel</span></span>
+<dt id="falkonhep.models.logflkhep_model.LogFalkonHEPModel"><code class="flex name class">
+<span>class <span class="ident">LogFalkonHEPModel</span></span>
 <span>(</span><span>reference_path, data_path, output_path, options)</span>
 </code></dt>
 <dd>
@@ -86,51 +95,54 @@ class HEPModel:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class HEPModel:
-    &#34;&#34;&#34;
-    Generic model
-    &#34;&#34;&#34;
-
-    def __init__(self, reference_path, data_path, output_path, options):
-        
-        self.reference_path = reference_path
-        self.data_path = data_path
-        self.output_path = output_path
-        self.options = options
-        os.makedirs(output_path, exist_ok=True)
+<pre><code class="python">class LogFalkonHEPModel(HEPModel):
 
     def learn_t(self, R, B, S, features, model_parameters, cut_mll = None, normalize = False):
-        &#34;&#34;&#34;
-        Method used to compute the t values 
+        &#34;&#34;&#34;Method used to compute the t values 
 
         Args:
             R (int): Size of the reference \(N_0\)
             B (int): Mean of the Poisson distribution from which the size of the background is sampled
             S (int): Mean of the Poisson distribution from which the size of the signal is sampled
             features (List): List containing the name of the features used
-            model_parameters (Map): Dictionary containing the parameters for the model used
+            model_parameters (Map): a map containing the parameters for LogistFalkon e.g.
+            ```
+            model_parameters = {
+                &#39;sigma&#39; : kernel lengthscale,
+                &#39;penalty_list&#39; : list of regularization parameters,
+                &#39;iter_list&#39; : list of number of CG iterations,
+                &#39;M&#39; : number of Nystrom centers,
+                &#39;cg_tol&#39; : [Optional] tolerance of CG (default 1e-7),
+                &#39;keops_active&#39; : [Optional] if pyKeops will be used (default &#34;no&#34;) 
+            }
+            ```
             cut_mll (int, optional): Cut MLL. Defaults to None.
             normalize (bool, optional): If True data will be normalized before fitting the model. Defaults to False.
-        &#34;&#34;&#34;        
+        &#34;&#34;&#34;
         pass
 
     def __build_model(self, model_parameters, weight):
-        &#34;&#34;&#34;Function used to build the model
 
-        Args:
-            model_parameters (Map): model parameters
-            weight (float): weight
-        &#34;&#34;&#34;        
-        pass</code></pre>
+        cg_tol = model_parameters[&#39;cg_tol&#39;] if &#39;cg_tol&#39; in model_parameters else 1e-7
+        keops_active = model_parameters[&#39;keops_active&#39;] if keops_active in model_parameters else &#34;no&#34;
+        kernel = GaussianKernel(model_parameters[&#39;sigma&#39;])
+        configuration = {
+            &#39;kernel&#39; : kernel,
+            &#39;penalty_list&#39; : model_parameters[&#39;penalty_list&#39;],
+            &#39;iter_list&#39; : model_parameters[&#39;iter_list&#39;],
+            &#39;M&#39; : model_parameters[&#39;M&#39;],
+            &#39;options&#39; : FalkonOptions(cg_tolerance=cg_tol, keops_active=keops_active),
+            &#39;loss&#39; : WeightedCrossEntropyLoss(kernel=kernel, neg_weight=weight)
+        }
+        return LogisticFalkon(**configuration)</code></pre>
 </details>
-<h3>Subclasses</h3>
+<h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="falkonhep.models.flkhep_model.FalkonHEPModel" href="flkhep_model.html#falkonhep.models.flkhep_model.FalkonHEPModel">FalkonHEPModel</a></li>
-<li><a title="falkonhep.models.logflkhep_model.LogFalkonHEPModel" href="logflkhep_model.html#falkonhep.models.logflkhep_model.LogFalkonHEPModel">LogFalkonHEPModel</a></li>
+<li><a title="falkonhep.models.hep_model.HEPModel" href="hep_model.html#falkonhep.models.hep_model.HEPModel">HEPModel</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="falkonhep.models.hep_model.HEPModel.learn_t"><code class="name flex">
+<dt id="falkonhep.models.logflkhep_model.LogFalkonHEPModel.learn_t"><code class="name flex">
 <span>def <span class="ident">learn_t</span></span>(<span>self, R, B, S, features, model_parameters, cut_mll=None, normalize=False)</span>
 </code></dt>
 <dd>
@@ -146,7 +158,18 @@ class HEPModel:
 <dt><strong><code>features</code></strong> :&ensp;<code>List</code></dt>
 <dd>List containing the name of the features used</dd>
 <dt><strong><code>model_parameters</code></strong> :&ensp;<code>Map</code></dt>
-<dd>Dictionary containing the parameters for the model used</dd>
+<dd>a map containing the parameters for LogistFalkon e.g.</dd>
+</dl>
+<pre><code>model_parameters = {
+    'sigma' : kernel lengthscale,
+    'penalty_list' : list of regularization parameters,
+    'iter_list' : list of number of CG iterations,
+    'M' : number of Nystrom centers,
+    'cg_tol' : [Optional] tolerance of CG (default 1e-7),
+    'keops_active' : [Optional] if pyKeops will be used (default &quot;no&quot;) 
+}
+</code></pre>
+<dl>
 <dt><strong><code>cut_mll</code></strong> :&ensp;<code>int</code>, optional</dt>
 <dd>Cut MLL. Defaults to None.</dd>
 <dt><strong><code>normalize</code></strong> :&ensp;<code>bool</code>, optional</dt>
@@ -157,18 +180,27 @@ class HEPModel:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def learn_t(self, R, B, S, features, model_parameters, cut_mll = None, normalize = False):
-    &#34;&#34;&#34;
-    Method used to compute the t values 
+    &#34;&#34;&#34;Method used to compute the t values 
 
     Args:
         R (int): Size of the reference \(N_0\)
         B (int): Mean of the Poisson distribution from which the size of the background is sampled
         S (int): Mean of the Poisson distribution from which the size of the signal is sampled
         features (List): List containing the name of the features used
-        model_parameters (Map): Dictionary containing the parameters for the model used
+        model_parameters (Map): a map containing the parameters for LogistFalkon e.g.
+        ```
+        model_parameters = {
+            &#39;sigma&#39; : kernel lengthscale,
+            &#39;penalty_list&#39; : list of regularization parameters,
+            &#39;iter_list&#39; : list of number of CG iterations,
+            &#39;M&#39; : number of Nystrom centers,
+            &#39;cg_tol&#39; : [Optional] tolerance of CG (default 1e-7),
+            &#39;keops_active&#39; : [Optional] if pyKeops will be used (default &#34;no&#34;) 
+        }
+        ```
         cut_mll (int, optional): Cut MLL. Defaults to None.
         normalize (bool, optional): If True data will be normalized before fitting the model. Defaults to False.
-    &#34;&#34;&#34;        
+    &#34;&#34;&#34;
     pass</code></pre>
 </details>
 </dd>
@@ -191,9 +223,9 @@ class HEPModel:
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="falkonhep.models.hep_model.HEPModel" href="#falkonhep.models.hep_model.HEPModel">HEPModel</a></code></h4>
+<h4><code><a title="falkonhep.models.logflkhep_model.LogFalkonHEPModel" href="#falkonhep.models.logflkhep_model.LogFalkonHEPModel">LogFalkonHEPModel</a></code></h4>
 <ul class="">
-<li><code><a title="falkonhep.models.hep_model.HEPModel.learn_t" href="#falkonhep.models.hep_model.HEPModel.learn_t">learn_t</a></code></li>
+<li><code><a title="falkonhep.models.logflkhep_model.LogFalkonHEPModel.learn_t" href="#falkonhep.models.logflkhep_model.LogFalkonHEPModel.learn_t">learn_t</a></code></li>
 </ul>
 </li>
 </ul>

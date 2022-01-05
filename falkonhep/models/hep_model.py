@@ -18,12 +18,21 @@ class HEPModel:
         Method used to compute the t values 
 
         Args:
-            R (int): Size of the reference N_0
+            R (int): Size of the reference \(N_0\)
             B (int): Mean of the Poisson distribution from which the size of the background is sampled
             S (int): Mean of the Poisson distribution from which the size of the signal is sampled
-            model_parameters (Map): Dictionary containing the parameters for the model used
             features (List): List containing the name of the features used
+            model_parameters (Map): Dictionary containing the parameters for the model used
             cut_mll (int, optional): Cut MLL. Defaults to None.
             normalize (bool, optional): If True data will be normalized before fitting the model. Defaults to False.
+        """        
+        pass
+
+    def __build_model(self, model_parameters, weight):
+        """Function used to build the model
+
+        Args:
+            model_parameters (Map): model parameters
+            weight (float): weight
         """        
         pass
