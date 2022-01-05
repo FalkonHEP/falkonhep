@@ -93,7 +93,19 @@ class HEPModel:
             return self.__generate_nonresonant(R, B, S, features, cut_mll, normalize, ref_state, sig_state)
         raise Exception("Unknown signal type")
 
-    def learn_t(self, R, B, S, features, model_parameters, cut_mll = None, normalize = False):
+    def __create_labels(self, ref_size, data_size):
+        """Given reference and data size, it returns
+
+        Args:
+            ref_size (int): reference sample size
+            data_size (int): data sample size
+        
+        Returns:
+            (np.ndarray): returns the label vector
+        """        
+        pass
+
+    def learn_t(self, R, B, S, features, model_parameters, sig_type, cut_mll = None, normalize = False, seeds = None):
         """
         Method used to compute the t values 
 
@@ -103,8 +115,10 @@ class HEPModel:
             S (int): Mean of the Poisson distribution from which the size of the signal is sampled
             features (List): List containing the name of the features used
             model_parameters (Map): Dictionary containing the parameters for the model used
+            sig_type (int): Type of signal (0: no-signal, 1: resonant, 2: non-resonant).
             cut_mll (int, optional): Cut MLL. Defaults to None.
             normalize (bool, optional): If True data will be normalized before fitting the model. Defaults to False.
+            seeds (Tuple, optional): A tuple (reference_seed, data_seed) used to generate reference and data sample, if None two random seeds are generated. Defaults to None.
         """        
         pass
 

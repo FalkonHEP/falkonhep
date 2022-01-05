@@ -5,6 +5,7 @@ import os
 import datetime
 import time
 import pathlib
+import torch
 
 
 def generate_seeds(toy_label):
@@ -25,6 +26,8 @@ def generate_seeds(toy_label):
 
 
 
+def fix(X):
+    return torch.from_numpy(X.copy()).reshape(-1,X.shape[1])
 
 
 
@@ -56,61 +59,7 @@ def normalize_features(reference, data):
     data_norm = X_norm[ref_size:, :]
     
     return ref_norm, data_norm
-    
-
-
-def create_labels(ref_sample_obj, data_sample_obj, ml_model_type):
-    """Create labels for reference and data
-
-    Args:
-        ref_sample_obj (np.ndarray): reference inputs
-        data_sample_obj (np.ndarray): data inputs
-        ml_model_type (str): Model used (it can be 'falkon_model' for Falkon or 'logfalkon_model' for LogFalkon)
-
-    Returns:
-        np.ndarray: outputs for reference and data
-    """    
-    
-    # Labels
-    if ml_model_type == 'falkon_model':
-        label_ref = -1 * np.ones(ref_sample_obj.size)
-    elif ml_model_type == 'logfalkon_model':
-        label_ref = np.zeros(ref_sample_obj.size)
-    else:
-        raise Exception("Unknown Model!")
         
-    label_data = np.ones(data_sample_obj.size)
-    
-    Y = np.hstack((label_ref, label_data))
-        
-    return Y
-
-
-    
-def create_output_folders(exp_out_path, n_toy):
-    """
-    Create all the output folders
-
-    Parameters
-    ----------
-    exp_out_path : string
-        output folder for the experiment
-
-    Returns
-    -------
-    None.
-
-    """
-
-    if not os.path.isdir(exp_out_path):
-        os.mkdir(exp_out_path)
-    
-    for i in range(n_toy):
-        toy_out_path =  '{}/toy_{}'.format(exp_out_path,i)
-        toy_out_path = str(pathlib.PurePath(toy_out_path).as_posix())
-        if not os.path.isdir(toy_out_path):
-            os.mkdir(toy_out_path)    
-    
  
 
 
@@ -167,7 +116,7 @@ def read_data(n_events, features, input_path, seed_state, cut_mll = None):
     toy_label = input_path.split("/")[-1]
         
     n_features = len(features)
-    HLF = np.zeros((n_events,n_features), dtype=np.double)
+    HLF = np.zeros((n_events,n_features), dtype=np.float32)
     cut_vector = np.zeros(n_events, dtype=bool)
 
     start_idx = 0

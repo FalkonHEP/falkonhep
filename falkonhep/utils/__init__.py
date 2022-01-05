@@ -1,7 +1,8 @@
-from .data_utils import normalize, read_data, generate_seeds, normalize_features
+from .data_utils import normalize, read_data, generate_seeds, normalize_features, fix
 
 __all__ = (
         'normalize_features',
         'generate_seeds',
         'normalize',
-        'read_data')
+        'read_data', 
+        'fix')

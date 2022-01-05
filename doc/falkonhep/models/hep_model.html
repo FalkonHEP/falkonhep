@@ -122,7 +122,19 @@ class HEPModel:
             return self.__generate_nonresonant(R, B, S, features, cut_mll, normalize, ref_state, sig_state)
         raise Exception(&#34;Unknown signal type&#34;)
 
-    def learn_t(self, R, B, S, features, model_parameters, cut_mll = None, normalize = False):
+    def __create_labels(self, ref_size, data_size):
+        &#34;&#34;&#34;Given reference and data size, it returns
+
+        Args:
+            ref_size (int): reference sample size
+            data_size (int): data sample size
+        
+        Returns:
+            (np.ndarray): returns the label vector
+        &#34;&#34;&#34;        
+        pass
+
+    def learn_t(self, R, B, S, features, model_parameters, sig_type, cut_mll = None, normalize = False, seeds = None):
         &#34;&#34;&#34;
         Method used to compute the t values 
 
@@ -132,8 +144,10 @@ class HEPModel:
             S (int): Mean of the Poisson distribution from which the size of the signal is sampled
             features (List): List containing the name of the features used
             model_parameters (Map): Dictionary containing the parameters for the model used
+            sig_type (int): Type of signal (0: no-signal, 1: resonant, 2: non-resonant).
             cut_mll (int, optional): Cut MLL. Defaults to None.
             normalize (bool, optional): If True data will be normalized before fitting the model. Defaults to False.
+            seeds (Tuple, optional): A tuple (reference_seed, data_seed) used to generate reference and data sample, if None two random seeds are generated. Defaults to None.
         &#34;&#34;&#34;        
         pass
 
@@ -267,7 +281,19 @@ class HEPModel:
             return self.__generate_nonresonant(R, B, S, features, cut_mll, normalize, ref_state, sig_state)
         raise Exception(&#34;Unknown signal type&#34;)
 
-    def learn_t(self, R, B, S, features, model_parameters, cut_mll = None, normalize = False):
+    def __create_labels(self, ref_size, data_size):
+        &#34;&#34;&#34;Given reference and data size, it returns
+
+        Args:
+            ref_size (int): reference sample size
+            data_size (int): data sample size
+        
+        Returns:
+            (np.ndarray): returns the label vector
+        &#34;&#34;&#34;        
+        pass
+
+    def learn_t(self, R, B, S, features, model_parameters, sig_type, cut_mll = None, normalize = False, seeds = None):
         &#34;&#34;&#34;
         Method used to compute the t values 
 
@@ -277,8 +303,10 @@ class HEPModel:
             S (int): Mean of the Poisson distribution from which the size of the signal is sampled
             features (List): List containing the name of the features used
             model_parameters (Map): Dictionary containing the parameters for the model used
+            sig_type (int): Type of signal (0: no-signal, 1: resonant, 2: non-resonant).
             cut_mll (int, optional): Cut MLL. Defaults to None.
             normalize (bool, optional): If True data will be normalized before fitting the model. Defaults to False.
+            seeds (Tuple, optional): A tuple (reference_seed, data_seed) used to generate reference and data sample, if None two random seeds are generated. Defaults to None.
         &#34;&#34;&#34;        
         pass
 
@@ -365,7 +393,7 @@ class HEPModel:
 </details>
 </dd>
 <dt id="falkonhep.models.hep_model.HEPModel.learn_t"><code class="name flex">
-<span>def <span class="ident">learn_t</span></span>(<span>self, R, B, S, features, model_parameters, cut_mll=None, normalize=False)</span>
+<span>def <span class="ident">learn_t</span></span>(<span>self, R, B, S, features, model_parameters, sig_type, cut_mll=None, normalize=False, seeds=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Method used to compute the t values </p>
@@ -381,16 +409,20 @@ class HEPModel:
 <dd>List containing the name of the features used</dd>
 <dt><strong><code>model_parameters</code></strong> :&ensp;<code>Map</code></dt>
 <dd>Dictionary containing the parameters for the model used</dd>
+<dt><strong><code>sig_type</code></strong> :&ensp;<code>int</code></dt>
+<dd>Type of signal (0: no-signal, 1: resonant, 2: non-resonant).</dd>
 <dt><strong><code>cut_mll</code></strong> :&ensp;<code>int</code>, optional</dt>
 <dd>Cut MLL. Defaults to None.</dd>
 <dt><strong><code>normalize</code></strong> :&ensp;<code>bool</code>, optional</dt>
 <dd>If True data will be normalized before fitting the model. Defaults to False.</dd>
+<dt><strong><code>seeds</code></strong> :&ensp;<code>Tuple</code>, optional</dt>
+<dd>A tuple (reference_seed, data_seed) used to generate reference and data sample, if None two random seeds are generated. Defaults to None.</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def learn_t(self, R, B, S, features, model_parameters, cut_mll = None, normalize = False):
+<pre><code class="python">def learn_t(self, R, B, S, features, model_parameters, sig_type, cut_mll = None, normalize = False, seeds = None):
     &#34;&#34;&#34;
     Method used to compute the t values 
 
@@ -400,8 +432,10 @@ class HEPModel:
         S (int): Mean of the Poisson distribution from which the size of the signal is sampled
         features (List): List containing the name of the features used
         model_parameters (Map): Dictionary containing the parameters for the model used
+        sig_type (int): Type of signal (0: no-signal, 1: resonant, 2: non-resonant).
         cut_mll (int, optional): Cut MLL. Defaults to None.
         normalize (bool, optional): If True data will be normalized before fitting the model. Defaults to False.
+        seeds (Tuple, optional): A tuple (reference_seed, data_seed) used to generate reference and data sample, if None two random seeds are generated. Defaults to None.
     &#34;&#34;&#34;        
     pass</code></pre>
 </details>

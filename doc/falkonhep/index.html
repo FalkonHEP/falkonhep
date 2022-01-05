@@ -204,7 +204,19 @@ __all__ = (&#39;HEPModel&#39;, &#39;FalkonHEPModel&#39;, &#39;LogFalkonHEPModel&
             return self.__generate_nonresonant(R, B, S, features, cut_mll, normalize, ref_state, sig_state)
         raise Exception(&#34;Unknown signal type&#34;)
 
-    def learn_t(self, R, B, S, features, model_parameters, cut_mll = None, normalize = False):
+    def __create_labels(self, ref_size, data_size):
+        &#34;&#34;&#34;Given reference and data size, it returns
+
+        Args:
+            ref_size (int): reference sample size
+            data_size (int): data sample size
+        
+        Returns:
+            (np.ndarray): returns the label vector
+        &#34;&#34;&#34;        
+        pass
+
+    def learn_t(self, R, B, S, features, model_parameters, sig_type, cut_mll = None, normalize = False, seeds = None):
         &#34;&#34;&#34;
         Method used to compute the t values 
 
@@ -214,8 +226,10 @@ __all__ = (&#39;HEPModel&#39;, &#39;FalkonHEPModel&#39;, &#39;LogFalkonHEPModel&
             S (int): Mean of the Poisson distribution from which the size of the signal is sampled
             features (List): List containing the name of the features used
             model_parameters (Map): Dictionary containing the parameters for the model used
+            sig_type (int): Type of signal (0: no-signal, 1: resonant, 2: non-resonant).
             cut_mll (int, optional): Cut MLL. Defaults to None.
             normalize (bool, optional): If True data will be normalized before fitting the model. Defaults to False.
+            seeds (Tuple, optional): A tuple (reference_seed, data_seed) used to generate reference and data sample, if None two random seeds are generated. Defaults to None.
         &#34;&#34;&#34;        
         pass
 
@@ -302,7 +316,7 @@ __all__ = (&#39;HEPModel&#39;, &#39;FalkonHEPModel&#39;, &#39;LogFalkonHEPModel&
 </details>
 </dd>
 <dt id="falkonhep.HEPModel.learn_t"><code class="name flex">
-<span>def <span class="ident">learn_t</span></span>(<span>self, R, B, S, features, model_parameters, cut_mll=None, normalize=False)</span>
+<span>def <span class="ident">learn_t</span></span>(<span>self, R, B, S, features, model_parameters, sig_type, cut_mll=None, normalize=False, seeds=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Method used to compute the t values </p>
@@ -318,16 +332,20 @@ __all__ = (&#39;HEPModel&#39;, &#39;FalkonHEPModel&#39;, &#39;LogFalkonHEPModel&
 <dd>List containing the name of the features used</dd>
 <dt><strong><code>model_parameters</code></strong> :&ensp;<code>Map</code></dt>
 <dd>Dictionary containing the parameters for the model used</dd>
+<dt><strong><code>sig_type</code></strong> :&ensp;<code>int</code></dt>
+<dd>Type of signal (0: no-signal, 1: resonant, 2: non-resonant).</dd>
 <dt><strong><code>cut_mll</code></strong> :&ensp;<code>int</code>, optional</dt>
 <dd>Cut MLL. Defaults to None.</dd>
 <dt><strong><code>normalize</code></strong> :&ensp;<code>bool</code>, optional</dt>
 <dd>If True data will be normalized before fitting the model. Defaults to False.</dd>
+<dt><strong><code>seeds</code></strong> :&ensp;<code>Tuple</code>, optional</dt>
+<dd>A tuple (reference_seed, data_seed) used to generate reference and data sample, if None two random seeds are generated. Defaults to None.</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def learn_t(self, R, B, S, features, model_parameters, cut_mll = None, normalize = False):
+<pre><code class="python">def learn_t(self, R, B, S, features, model_parameters, sig_type, cut_mll = None, normalize = False, seeds = None):
     &#34;&#34;&#34;
     Method used to compute the t values 
 
@@ -337,8 +355,10 @@ __all__ = (&#39;HEPModel&#39;, &#39;FalkonHEPModel&#39;, &#39;LogFalkonHEPModel&
         S (int): Mean of the Poisson distribution from which the size of the signal is sampled
         features (List): List containing the name of the features used
         model_parameters (Map): Dictionary containing the parameters for the model used
+        sig_type (int): Type of signal (0: no-signal, 1: resonant, 2: non-resonant).
         cut_mll (int, optional): Cut MLL. Defaults to None.
         normalize (bool, optional): If True data will be normalized before fitting the model. Defaults to False.
+        seeds (Tuple, optional): A tuple (reference_seed, data_seed) used to generate reference and data sample, if None two random seeds are generated. Defaults to None.
     &#34;&#34;&#34;        
     pass</code></pre>
 </details>
@@ -369,13 +389,18 @@ __all__ = (&#39;HEPModel&#39;, &#39;FalkonHEPModel&#39;, &#39;LogFalkonHEPModel&
 </summary>
 <pre><code class="python">class LogFalkonHEPModel(HEPModel):
 
-    def learn_t(self, R, B, S, features, model_parameters, cut_mll = None, normalize = False):
+    def __create_labels(self, ref_size, data_size):
+        ref_labels = np.zeros(ref_size, dtype=np.float32)
+        data_labels = np.ones(data_size, dtype=np.float32)
+        return np.hstack((ref_labels, data_labels))
+
+    def learn_t(self, R, B, S, features, model_parameters, sig_type, cut_mll = None, normalize = False, seeds = None):
         &#34;&#34;&#34;Method used to compute the t values 
 
         Args:
             R (int): Size of the reference \(N_0\)
-            B (int): Mean of the Poisson distribution from which the size of the background is sampled
-            S (int): Mean of the Poisson distribution from which the size of the signal is sampled
+            B (int): Expected background size
+            S (int): Expected signal size
             features (List): List containing the name of the features used
             model_parameters (Map): a map containing the parameters for LogistFalkon e.g.
             ```
@@ -388,15 +413,49 @@ __all__ = (&#39;HEPModel&#39;, &#39;FalkonHEPModel&#39;, &#39;LogFalkonHEPModel&
                 &#39;keops_active&#39; : [Optional] if pyKeops will be used (default &#34;no&#34;) 
             }
             ```
+            sig_type (int): Type of signal (0: no-signal, 1: resonant, 2: non-resonant).
             cut_mll (int, optional): Cut MLL. Defaults to None.
             normalize (bool, optional): If True data will be normalized before fitting the model. Defaults to False.
+            seeds (Tuple, optional): A tuple (reference_seed, data_seed) used to generate reference and data sample, if None two random seeds are generated. Defaults to None.
         &#34;&#34;&#34;
-        pass
+        ref_seed, data_seed = seeds if seeds is not None else generate_seeds(np.random.randint(100))
+        ref_state, data_state = np.random.RandomState(ref_seed), np.random.RandomState(data_seed)
+        
+        reference, data_sample, bck_size, sig_size = self.generate_dataset(R, B, S, features, cut_mll, normalize, sig_type, ref_state, data_state)
+        
+        data = np.vstack((reference, data_sample))
+        data_size = bck_size + sig_size if sig_size is not None else bck_size
 
+        # Labels
+        labels = self.__create_labels(reference.shape[0], data_size)
+      
+        # Create and fit model
+        weight = B / R 
+        model = self.__build_model(model_parameters, weight)
+
+        Xtorch = fix(data.reshape(data.shape[0], data.shape[1]))
+        Ytorch = fix(labels.reshape(-1, 1))        
+
+        train_time = time.time()
+        model.fit(Xtorch, Ytorch)
+        train_time = time.time() - train_time
+
+        ref_pred = model.predict(torch.from_numpy(reference).contiguous())
+        data_pred = model.predict(torch.from_numpy(data_sample).contiguous())
+
+        # Compute Nw and t
+
+        Nw = weight*torch.sum(torch.exp(ref_pred))
+        diff = weight*torch.sum(1 - torch.exp(ref_pred))
+        t = 2 * (diff + torch.sum(data_pred).item())
+
+        del data_pred, reference, data_sample
+        return t, Nw, train_time, ref_seed, data_seed, ref_pred
+        
     def __build_model(self, model_parameters, weight):
 
         cg_tol = model_parameters[&#39;cg_tol&#39;] if &#39;cg_tol&#39; in model_parameters else 1e-7
-        keops_active = model_parameters[&#39;keops_active&#39;] if keops_active in model_parameters else &#34;no&#34;
+        keops_active = model_parameters[&#39;keops_active&#39;] if &#39;keops_active&#39; in model_parameters else &#34;no&#34;
         kernel = GaussianKernel(model_parameters[&#39;sigma&#39;])
         configuration = {
             &#39;kernel&#39; : kernel,
@@ -406,6 +465,8 @@ __all__ = (&#39;HEPModel&#39;, &#39;FalkonHEPModel&#39;, &#39;LogFalkonHEPModel&
             &#39;options&#39; : FalkonOptions(cg_tolerance=cg_tol, keops_active=keops_active),
             &#39;loss&#39; : WeightedCrossEntropyLoss(kernel=kernel, neg_weight=weight)
         }
+        if &#39;seed&#39; in model_parameters:
+            configuration[&#39;seed&#39;] = model_parameters[&#39;seed&#39;]
         return LogisticFalkon(**configuration)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -415,7 +476,7 @@ __all__ = (&#39;HEPModel&#39;, &#39;FalkonHEPModel&#39;, &#39;LogFalkonHEPModel&
 <h3>Methods</h3>
 <dl>
 <dt id="falkonhep.LogFalkonHEPModel.learn_t"><code class="name flex">
-<span>def <span class="ident">learn_t</span></span>(<span>self, R, B, S, features, model_parameters, cut_mll=None, normalize=False)</span>
+<span>def <span class="ident">learn_t</span></span>(<span>self, R, B, S, features, model_parameters, sig_type, cut_mll=None, normalize=False, seeds=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Method used to compute the t values </p>
@@ -424,9 +485,9 @@ __all__ = (&#39;HEPModel&#39;, &#39;FalkonHEPModel&#39;, &#39;LogFalkonHEPModel&
 <dt><strong><code>R</code></strong> :&ensp;<code>int</code></dt>
 <dd>Size of the reference <span><span class="MathJax_Preview">N_0</span><script type="math/tex">N_0</script></span></dd>
 <dt><strong><code>B</code></strong> :&ensp;<code>int</code></dt>
-<dd>Mean of the Poisson distribution from which the size of the background is sampled</dd>
+<dd>Expected background size</dd>
 <dt><strong><code>S</code></strong> :&ensp;<code>int</code></dt>
-<dd>Mean of the Poisson distribution from which the size of the signal is sampled</dd>
+<dd>Expected signal size</dd>
 <dt><strong><code>features</code></strong> :&ensp;<code>List</code></dt>
 <dd>List containing the name of the features used</dd>
 <dt><strong><code>model_parameters</code></strong> :&ensp;<code>Map</code></dt>
@@ -442,22 +503,26 @@ __all__ = (&#39;HEPModel&#39;, &#39;FalkonHEPModel&#39;, &#39;LogFalkonHEPModel&
 }
 </code></pre>
 <dl>
+<dt><strong><code>sig_type</code></strong> :&ensp;<code>int</code></dt>
+<dd>Type of signal (0: no-signal, 1: resonant, 2: non-resonant).</dd>
 <dt><strong><code>cut_mll</code></strong> :&ensp;<code>int</code>, optional</dt>
 <dd>Cut MLL. Defaults to None.</dd>
 <dt><strong><code>normalize</code></strong> :&ensp;<code>bool</code>, optional</dt>
 <dd>If True data will be normalized before fitting the model. Defaults to False.</dd>
+<dt><strong><code>seeds</code></strong> :&ensp;<code>Tuple</code>, optional</dt>
+<dd>A tuple (reference_seed, data_seed) used to generate reference and data sample, if None two random seeds are generated. Defaults to None.</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def learn_t(self, R, B, S, features, model_parameters, cut_mll = None, normalize = False):
+<pre><code class="python">def learn_t(self, R, B, S, features, model_parameters, sig_type, cut_mll = None, normalize = False, seeds = None):
     &#34;&#34;&#34;Method used to compute the t values 
 
     Args:
         R (int): Size of the reference \(N_0\)
-        B (int): Mean of the Poisson distribution from which the size of the background is sampled
-        S (int): Mean of the Poisson distribution from which the size of the signal is sampled
+        B (int): Expected background size
+        S (int): Expected signal size
         features (List): List containing the name of the features used
         model_parameters (Map): a map containing the parameters for LogistFalkon e.g.
         ```
@@ -470,10 +535,44 @@ __all__ = (&#39;HEPModel&#39;, &#39;FalkonHEPModel&#39;, &#39;LogFalkonHEPModel&
             &#39;keops_active&#39; : [Optional] if pyKeops will be used (default &#34;no&#34;) 
         }
         ```
+        sig_type (int): Type of signal (0: no-signal, 1: resonant, 2: non-resonant).
         cut_mll (int, optional): Cut MLL. Defaults to None.
         normalize (bool, optional): If True data will be normalized before fitting the model. Defaults to False.
+        seeds (Tuple, optional): A tuple (reference_seed, data_seed) used to generate reference and data sample, if None two random seeds are generated. Defaults to None.
     &#34;&#34;&#34;
-    pass</code></pre>
+    ref_seed, data_seed = seeds if seeds is not None else generate_seeds(np.random.randint(100))
+    ref_state, data_state = np.random.RandomState(ref_seed), np.random.RandomState(data_seed)
+    
+    reference, data_sample, bck_size, sig_size = self.generate_dataset(R, B, S, features, cut_mll, normalize, sig_type, ref_state, data_state)
+    
+    data = np.vstack((reference, data_sample))
+    data_size = bck_size + sig_size if sig_size is not None else bck_size
+
+    # Labels
+    labels = self.__create_labels(reference.shape[0], data_size)
+  
+    # Create and fit model
+    weight = B / R 
+    model = self.__build_model(model_parameters, weight)
+
+    Xtorch = fix(data.reshape(data.shape[0], data.shape[1]))
+    Ytorch = fix(labels.reshape(-1, 1))        
+
+    train_time = time.time()
+    model.fit(Xtorch, Ytorch)
+    train_time = time.time() - train_time
+
+    ref_pred = model.predict(torch.from_numpy(reference).contiguous())
+    data_pred = model.predict(torch.from_numpy(data_sample).contiguous())
+
+    # Compute Nw and t
+
+    Nw = weight*torch.sum(torch.exp(ref_pred))
+    diff = weight*torch.sum(1 - torch.exp(ref_pred))
+    t = 2 * (diff + torch.sum(data_pred).item())
+
+    del data_pred, reference, data_sample
+    return t, Nw, train_time, ref_seed, data_seed, ref_pred</code></pre>
 </details>
 </dd>
 </dl>

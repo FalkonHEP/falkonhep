@@ -27,13 +27,14 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from .data_utils import normalize, read_data, generate_seeds, normalize_features
+<pre><code class="python">from .data_utils import normalize, read_data, generate_seeds, normalize_features, fix
 
 __all__ = (
         &#39;normalize_features&#39;,
         &#39;generate_seeds&#39;,
         &#39;normalize&#39;,
-        &#39;read_data&#39;)</code></pre>
+        &#39;read_data&#39;, 
+        &#39;fix&#39;)</code></pre>
 </details>
 </section>
 <section>
@@ -50,6 +51,19 @@ __all__ = (
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="falkonhep.utils.fix"><code class="name flex">
+<span>def <span class="ident">fix</span></span>(<span>X)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fix(X):
+    return torch.from_numpy(X.copy()).reshape(-1,X.shape[1])</code></pre>
+</details>
+</dd>
 <dt id="falkonhep.utils.generate_seeds"><code class="name flex">
 <span>def <span class="ident">generate_seeds</span></span>(<span>toy_label)</span>
 </code></dt>
@@ -233,7 +247,7 @@ are random.</p>
     toy_label = input_path.split(&#34;/&#34;)[-1]
         
     n_features = len(features)
-    HLF = np.zeros((n_events,n_features), dtype=np.double)
+    HLF = np.zeros((n_events,n_features), dtype=np.float32)
     cut_vector = np.zeros(n_events, dtype=bool)
 
     start_idx = 0
@@ -309,6 +323,7 @@ are random.</p>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="falkonhep.utils.fix" href="#falkonhep.utils.fix">fix</a></code></li>
 <li><code><a title="falkonhep.utils.generate_seeds" href="#falkonhep.utils.generate_seeds">generate_seeds</a></code></li>
 <li><code><a title="falkonhep.utils.normalize" href="#falkonhep.utils.normalize">normalize</a></code></li>
 <li><code><a title="falkonhep.utils.normalize_features" href="#falkonhep.utils.normalize_features">normalize_features</a></code></li>

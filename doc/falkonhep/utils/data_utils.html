@@ -34,6 +34,7 @@ import os
 import datetime
 import time
 import pathlib
+import torch
 
 
 def generate_seeds(toy_label):
@@ -54,6 +55,8 @@ def generate_seeds(toy_label):
 
 
 
+def fix(X):
+    return torch.from_numpy(X.copy()).reshape(-1,X.shape[1])
 
 
 
@@ -85,61 +88,7 @@ def normalize_features(reference, data):
     data_norm = X_norm[ref_size:, :]
     
     return ref_norm, data_norm
-    
-
-
-def create_labels(ref_sample_obj, data_sample_obj, ml_model_type):
-    &#34;&#34;&#34;Create labels for reference and data
-
-    Args:
-        ref_sample_obj (np.ndarray): reference inputs
-        data_sample_obj (np.ndarray): data inputs
-        ml_model_type (str): Model used (it can be &#39;falkon_model&#39; for Falkon or &#39;logfalkon_model&#39; for LogFalkon)
-
-    Returns:
-        np.ndarray: outputs for reference and data
-    &#34;&#34;&#34;    
-    
-    # Labels
-    if ml_model_type == &#39;falkon_model&#39;:
-        label_ref = -1 * np.ones(ref_sample_obj.size)
-    elif ml_model_type == &#39;logfalkon_model&#39;:
-        label_ref = np.zeros(ref_sample_obj.size)
-    else:
-        raise Exception(&#34;Unknown Model!&#34;)
         
-    label_data = np.ones(data_sample_obj.size)
-    
-    Y = np.hstack((label_ref, label_data))
-        
-    return Y
-
-
-    
-def create_output_folders(exp_out_path, n_toy):
-    &#34;&#34;&#34;
-    Create all the output folders
-
-    Parameters
-    ----------
-    exp_out_path : string
-        output folder for the experiment
-
-    Returns
-    -------
-    None.
-
-    &#34;&#34;&#34;
-
-    if not os.path.isdir(exp_out_path):
-        os.mkdir(exp_out_path)
-    
-    for i in range(n_toy):
-        toy_out_path =  &#39;{}/toy_{}&#39;.format(exp_out_path,i)
-        toy_out_path = str(pathlib.PurePath(toy_out_path).as_posix())
-        if not os.path.isdir(toy_out_path):
-            os.mkdir(toy_out_path)    
-    
  
 
 
@@ -196,7 +145,7 @@ def read_data(n_events, features, input_path, seed_state, cut_mll = None):
     toy_label = input_path.split(&#34;/&#34;)[-1]
         
     n_features = len(features)
-    HLF = np.zeros((n_events,n_features), dtype=np.double)
+    HLF = np.zeros((n_events,n_features), dtype=np.float32)
     cut_vector = np.zeros(n_events, dtype=bool)
 
     start_idx = 0
@@ -256,95 +205,17 @@ def read_data(n_events, features, input_path, seed_state, cut_mll = None):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="falkonhep.utils.data_utils.create_labels"><code class="name flex">
-<span>def <span class="ident">create_labels</span></span>(<span>ref_sample_obj, data_sample_obj, ml_model_type)</span>
+<dt id="falkonhep.utils.data_utils.fix"><code class="name flex">
+<span>def <span class="ident">fix</span></span>(<span>X)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Create labels for reference and data</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>ref_sample_obj</code></strong> :&ensp;<code>np.ndarray</code></dt>
-<dd>reference inputs</dd>
-<dt><strong><code>data_sample_obj</code></strong> :&ensp;<code>np.ndarray</code></dt>
-<dd>data inputs</dd>
-<dt><strong><code>ml_model_type</code></strong> :&ensp;<code>str</code></dt>
-<dd>Model used (it can be 'falkon_model' for Falkon or 'logfalkon_model' for LogFalkon)</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>np.ndarray</code></dt>
-<dd>outputs for reference and data</dd>
-</dl></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def create_labels(ref_sample_obj, data_sample_obj, ml_model_type):
-    &#34;&#34;&#34;Create labels for reference and data
-
-    Args:
-        ref_sample_obj (np.ndarray): reference inputs
-        data_sample_obj (np.ndarray): data inputs
-        ml_model_type (str): Model used (it can be &#39;falkon_model&#39; for Falkon or &#39;logfalkon_model&#39; for LogFalkon)
-
-    Returns:
-        np.ndarray: outputs for reference and data
-    &#34;&#34;&#34;    
-    
-    # Labels
-    if ml_model_type == &#39;falkon_model&#39;:
-        label_ref = -1 * np.ones(ref_sample_obj.size)
-    elif ml_model_type == &#39;logfalkon_model&#39;:
-        label_ref = np.zeros(ref_sample_obj.size)
-    else:
-        raise Exception(&#34;Unknown Model!&#34;)
-        
-    label_data = np.ones(data_sample_obj.size)
-    
-    Y = np.hstack((label_ref, label_data))
-        
-    return Y</code></pre>
-</details>
-</dd>
-<dt id="falkonhep.utils.data_utils.create_output_folders"><code class="name flex">
-<span>def <span class="ident">create_output_folders</span></span>(<span>exp_out_path, n_toy)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create all the output folders</p>
-<h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>exp_out_path</code></strong> :&ensp;<code>string</code></dt>
-<dd>output folder for the experiment</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>None.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def create_output_folders(exp_out_path, n_toy):
-    &#34;&#34;&#34;
-    Create all the output folders
-
-    Parameters
-    ----------
-    exp_out_path : string
-        output folder for the experiment
-
-    Returns
-    -------
-    None.
-
-    &#34;&#34;&#34;
-
-    if not os.path.isdir(exp_out_path):
-        os.mkdir(exp_out_path)
-    
-    for i in range(n_toy):
-        toy_out_path =  &#39;{}/toy_{}&#39;.format(exp_out_path,i)
-        toy_out_path = str(pathlib.PurePath(toy_out_path).as_posix())
-        if not os.path.isdir(toy_out_path):
-            os.mkdir(toy_out_path)    </code></pre>
+<pre><code class="python">def fix(X):
+    return torch.from_numpy(X.copy()).reshape(-1,X.shape[1])</code></pre>
 </details>
 </dd>
 <dt id="falkonhep.utils.data_utils.generate_seeds"><code class="name flex">
@@ -530,7 +401,7 @@ are random.</p>
     toy_label = input_path.split(&#34;/&#34;)[-1]
         
     n_features = len(features)
-    HLF = np.zeros((n_events,n_features), dtype=np.double)
+    HLF = np.zeros((n_events,n_features), dtype=np.float32)
     cut_vector = np.zeros(n_events, dtype=bool)
 
     start_idx = 0
@@ -601,8 +472,7 @@ are random.</p>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="falkonhep.utils.data_utils.create_labels" href="#falkonhep.utils.data_utils.create_labels">create_labels</a></code></li>
-<li><code><a title="falkonhep.utils.data_utils.create_output_folders" href="#falkonhep.utils.data_utils.create_output_folders">create_output_folders</a></code></li>
+<li><code><a title="falkonhep.utils.data_utils.fix" href="#falkonhep.utils.data_utils.fix">fix</a></code></li>
 <li><code><a title="falkonhep.utils.data_utils.generate_seeds" href="#falkonhep.utils.data_utils.generate_seeds">generate_seeds</a></code></li>
 <li><code><a title="falkonhep.utils.data_utils.normalize" href="#falkonhep.utils.data_utils.normalize">normalize</a></code></li>
 <li><code><a title="falkonhep.utils.data_utils.normalize_features" href="#falkonhep.utils.data_utils.normalize_features">normalize_features</a></code></li>
