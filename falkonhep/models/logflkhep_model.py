@@ -8,7 +8,7 @@ from falkon.options import FalkonOptions
 from falkon.gsc_losses import WeightedCrossEntropyLoss
 
 from falkonhep.models import HEPModel
-from falkonhep.utils import generate_seeds, fix
+from falkonhep.utils import generate_seeds
 
 class LogFalkonHEPModel(HEPModel):
 
@@ -56,8 +56,8 @@ class LogFalkonHEPModel(HEPModel):
         weight = B / R 
         model = self.__build_model(model_parameters, weight)
 
-        Xtorch = fix(data.reshape(data.shape[0], data.shape[1]))
-        Ytorch = fix(labels.reshape(-1, 1))        
+        Xtorch = torch.from_numpy(data.reshape(data.shape[0], data.shape[1]))
+        Ytorch = torch.from_numpy(labels.reshape(-1, 1))        
 
         train_time = time.time()
         model.fit(Xtorch, Ytorch)
@@ -72,14 +72,14 @@ class LogFalkonHEPModel(HEPModel):
         diff = weight*torch.sum(1 - torch.exp(ref_pred))
         t = 2 * (diff + torch.sum(data_pred).item())
 
-        del data_pred, reference, data_sample
+        del data_pred, reference, data_sample, Xtorch, Ytorch
         return t, Nw, train_time, ref_seed, data_seed, ref_pred
         
     def __build_model(self, model_parameters, weight):
 
         cg_tol = model_parameters['cg_tol'] if 'cg_tol' in model_parameters else 1e-7
         keops_active = model_parameters['keops_active'] if 'keops_active' in model_parameters else "no"
-        kernel = GaussianKernel(model_parameters['sigma'])
+        kernel = GaussianKernel(torch.Tensor([model_parameters['sigma']]))
         configuration = {
             'kernel' : kernel,
             'penalty_list' : model_parameters['penalty_list'],

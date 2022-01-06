@@ -26,11 +26,6 @@ def generate_seeds(toy_label):
 
 
 
-def fix(X):
-    return torch.from_numpy(X.copy()).reshape(-1,X.shape[1])
-
-
-
 def normalize_features(reference, data):
     """
     Normalize features (higgs normalization)
