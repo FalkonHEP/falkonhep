@@ -42,42 +42,8 @@ class FalkonHEPModel(HEPModel):
             normalize (bool, optional): If True data will be normalized before fitting the model. Defaults to False.
             seeds (Tuple, optional): A tuple (reference_seed, data_seed) used to generate reference and data sample, if None two random seeds are generated. Defaults to None.
         """
-        raise NotImplemented()
-        #ref_seed, data_seed = seeds if seeds is not None else generate_seeds(np.random.randint(100))
-        #ref_state, data_state = np.random.RandomState(ref_seed), np.random.RandomState(data_seed)
-        #
-        #reference, data_sample, bck_size, sig_size = self.generate_dataset(R, B, S, features, cut_mll, normalize, sig_type, ref_state, data_state)
-        #
-        #data = np.vstack((reference, data_sample))
-        #data_size = bck_size + sig_size if sig_size is not None else bck_size
-#
-        ## Labels
-        #labels = self.__create_labels(reference.shape[0], data_size)
-      #
-        ## Create and fit model
-        #weight = B / R 
-        #model = self.__build_model(model_parameters, weight)
-#
-        #Xtorch = torch.from_numpy(data.copy().reshape(data.shape[0], data.shape[1]))
-        #Ytorch = torch.from_numpy(labels.copy().reshape(-1, 1))        
-#
-        #train_time = time.time()
-        #model.fit(Xtorch, Ytorch)
-        #train_time = time.time() - train_time
-#
-        #print("[--] Fitted")
-#
-        #ref_pred = model.predict(torch.from_numpy(reference).contiguous())
-        #data_pred = model.predict(torch.from_numpy(data_sample).contiguous())
-#
-        ## Compute Nw and t
-#
-        #Nw = weight*torch.sum(torch.exp(ref_pred))
-        #diff = weight*torch.sum(1 - torch.exp(ref_pred))
-        #t = 2 * (diff + torch.sum(data_pred).item())
-
-        #del data_pred, reference, data_sample, Xtorch, Ytorch
-        #return t, Nw, train_time, ref_seed, data_seed, ref_pred
+        raise NotImplementedError()
+      
 
     def __build_model(self, model_parameters, weight):
 
