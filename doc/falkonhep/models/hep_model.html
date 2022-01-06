@@ -134,9 +134,17 @@ class HEPModel:
         &#34;&#34;&#34;        
         pass
 
+    def __build_model(self, model_parameters, weight):
+        &#34;&#34;&#34;Function used to build the model
+
+        Args:
+            model_parameters (Map): model parameters
+            weight (float): weight
+        &#34;&#34;&#34;        
+        pass
+
     def learn_t(self, R, B, S, features, model_parameters, sig_type, cut_mll = None, normalize = False, seeds = None):
-        &#34;&#34;&#34;
-        Method used to compute the t values 
+        &#34;&#34;&#34;Method used to compute the t values 
 
         Args:
             R (int): Size of the reference \(N_0\)
@@ -151,14 +159,21 @@ class HEPModel:
         &#34;&#34;&#34;        
         pass
 
-    def __build_model(self, model_parameters, weight):
-        &#34;&#34;&#34;Function used to build the model
+    def save_result(self, fname, i, t, Nw, train_time, ref_seed, sig_seed):
+        &#34;&#34;&#34;Function which save the result of learn_t in a file
 
         Args:
-            model_parameters (Map): model parameters
-            weight (float): weight
+            fname (str): File name in which the result will be stored (the file will be stored in the output path specified). 
+            If the file already exists, the result will be appended. 
+            i (int): Toy identifier
+            t (float): value of t obtained
+            Nw (float): Nw
+            train_time (float): Time spent in fitting the model
+            ref_seed (int): seed to reproduce the reference sample
+            sig_seed (int): seed to reproduce the data sample
         &#34;&#34;&#34;        
-        pass</code></pre>
+        with open(self.output_path + &#34;/{}&#34;.format(fname), &#34;a&#34;) as f:
+            f.write(&#34;{},{},{},{},{},{}\n&#34;.format(i, t, Nw, train_time, ref_seed, sig_seed))</code></pre>
 </details>
 </section>
 <section>
@@ -293,9 +308,17 @@ class HEPModel:
         &#34;&#34;&#34;        
         pass
 
+    def __build_model(self, model_parameters, weight):
+        &#34;&#34;&#34;Function used to build the model
+
+        Args:
+            model_parameters (Map): model parameters
+            weight (float): weight
+        &#34;&#34;&#34;        
+        pass
+
     def learn_t(self, R, B, S, features, model_parameters, sig_type, cut_mll = None, normalize = False, seeds = None):
-        &#34;&#34;&#34;
-        Method used to compute the t values 
+        &#34;&#34;&#34;Method used to compute the t values 
 
         Args:
             R (int): Size of the reference \(N_0\)
@@ -310,14 +333,21 @@ class HEPModel:
         &#34;&#34;&#34;        
         pass
 
-    def __build_model(self, model_parameters, weight):
-        &#34;&#34;&#34;Function used to build the model
+    def save_result(self, fname, i, t, Nw, train_time, ref_seed, sig_seed):
+        &#34;&#34;&#34;Function which save the result of learn_t in a file
 
         Args:
-            model_parameters (Map): model parameters
-            weight (float): weight
+            fname (str): File name in which the result will be stored (the file will be stored in the output path specified). 
+            If the file already exists, the result will be appended. 
+            i (int): Toy identifier
+            t (float): value of t obtained
+            Nw (float): Nw
+            train_time (float): Time spent in fitting the model
+            ref_seed (int): seed to reproduce the reference sample
+            sig_seed (int): seed to reproduce the data sample
         &#34;&#34;&#34;        
-        pass</code></pre>
+        with open(self.output_path + &#34;/{}&#34;.format(fname), &#34;a&#34;) as f:
+            f.write(&#34;{},{},{},{},{},{}\n&#34;.format(i, t, Nw, train_time, ref_seed, sig_seed))</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
@@ -423,8 +453,7 @@ class HEPModel:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def learn_t(self, R, B, S, features, model_parameters, sig_type, cut_mll = None, normalize = False, seeds = None):
-    &#34;&#34;&#34;
-    Method used to compute the t values 
+    &#34;&#34;&#34;Method used to compute the t values 
 
     Args:
         R (int): Size of the reference \(N_0\)
@@ -438,6 +467,50 @@ class HEPModel:
         seeds (Tuple, optional): A tuple (reference_seed, data_seed) used to generate reference and data sample, if None two random seeds are generated. Defaults to None.
     &#34;&#34;&#34;        
     pass</code></pre>
+</details>
+</dd>
+<dt id="falkonhep.models.hep_model.HEPModel.save_result"><code class="name flex">
+<span>def <span class="ident">save_result</span></span>(<span>self, fname, i, t, Nw, train_time, ref_seed, sig_seed)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Function which save the result of learn_t in a file</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>fname</code></strong> :&ensp;<code>str</code></dt>
+<dd>File name in which the result will be stored (the file will be stored in the output path specified). </dd>
+<dt>If the file already exists, the result will be appended.</dt>
+<dt><strong><code>i</code></strong> :&ensp;<code>int</code></dt>
+<dd>Toy identifier</dd>
+<dt><strong><code>t</code></strong> :&ensp;<code>float</code></dt>
+<dd>value of t obtained</dd>
+<dt><strong><code>Nw</code></strong> :&ensp;<code>float</code></dt>
+<dd>Nw</dd>
+<dt><strong><code>train_time</code></strong> :&ensp;<code>float</code></dt>
+<dd>Time spent in fitting the model</dd>
+<dt><strong><code>ref_seed</code></strong> :&ensp;<code>int</code></dt>
+<dd>seed to reproduce the reference sample</dd>
+<dt><strong><code>sig_seed</code></strong> :&ensp;<code>int</code></dt>
+<dd>seed to reproduce the data sample</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_result(self, fname, i, t, Nw, train_time, ref_seed, sig_seed):
+    &#34;&#34;&#34;Function which save the result of learn_t in a file
+
+    Args:
+        fname (str): File name in which the result will be stored (the file will be stored in the output path specified). 
+        If the file already exists, the result will be appended. 
+        i (int): Toy identifier
+        t (float): value of t obtained
+        Nw (float): Nw
+        train_time (float): Time spent in fitting the model
+        ref_seed (int): seed to reproduce the reference sample
+        sig_seed (int): seed to reproduce the data sample
+    &#34;&#34;&#34;        
+    with open(self.output_path + &#34;/{}&#34;.format(fname), &#34;a&#34;) as f:
+        f.write(&#34;{},{},{},{},{},{}\n&#34;.format(i, t, Nw, train_time, ref_seed, sig_seed))</code></pre>
 </details>
 </dd>
 </dl>
@@ -463,6 +536,7 @@ class HEPModel:
 <ul class="">
 <li><code><a title="falkonhep.models.hep_model.HEPModel.generate_dataset" href="#falkonhep.models.hep_model.HEPModel.generate_dataset">generate_dataset</a></code></li>
 <li><code><a title="falkonhep.models.hep_model.HEPModel.learn_t" href="#falkonhep.models.hep_model.HEPModel.learn_t">learn_t</a></code></li>
+<li><code><a title="falkonhep.models.hep_model.HEPModel.save_result" href="#falkonhep.models.hep_model.HEPModel.save_result">save_result</a></code></li>
 </ul>
 </li>
 </ul>
