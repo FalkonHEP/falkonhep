@@ -105,9 +105,17 @@ class HEPModel:
         """        
         pass
 
+    def __build_model(self, model_parameters, weight):
+        """Function used to build the model
+
+        Args:
+            model_parameters (Map): model parameters
+            weight (float): weight
+        """        
+        pass
+
     def learn_t(self, R, B, S, features, model_parameters, sig_type, cut_mll = None, normalize = False, seeds = None):
-        """
-        Method used to compute the t values 
+        """Method used to compute the t values 
 
         Args:
             R (int): Size of the reference \(N_0\)
@@ -122,11 +130,19 @@ class HEPModel:
         """        
         pass
 
-    def __build_model(self, model_parameters, weight):
-        """Function used to build the model
+    def save_result(self, fname, i, t, Nw, train_time, ref_seed, sig_seed):
+        """Function which save the result of learn_t in a file
 
         Args:
-            model_parameters (Map): model parameters
-            weight (float): weight
+            fname (str): File name in which the result will be stored (the file will be stored in the output path specified). 
+            If the file already exists, the result will be appended. 
+            i (int): Toy identifier
+            t (float): value of t obtained
+            Nw (float): Nw
+            train_time (float): Time spent in fitting the model
+            ref_seed (int): seed to reproduce the reference sample
+            sig_seed (int): seed to reproduce the data sample
         """        
-        pass
+        with open(self.output_path + "/{}".format(fname), "a") as f:
+            f.write("{},{},{},{},{},{}\n".format(i, t, Nw, train_time, ref_seed, sig_seed))
+

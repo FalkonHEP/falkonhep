@@ -13,8 +13,8 @@ from falkonhep.utils import generate_seeds, fix
 class LogFalkonHEPModel(HEPModel):
 
     def __create_labels(self, ref_size, data_size):
-        ref_labels = np.zeros(ref_size, dtype=np.float32)
-        data_labels = np.ones(data_size, dtype=np.float32)
+        ref_labels = np.zeros(ref_size, dtype=np.float64)
+        data_labels = np.ones(data_size, dtype=np.float64)
         return np.hstack((ref_labels, data_labels))
 
     def learn_t(self, R, B, S, features, model_parameters, sig_type, cut_mll = None, normalize = False, seeds = None):

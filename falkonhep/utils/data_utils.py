@@ -116,7 +116,7 @@ def read_data(n_events, features, input_path, seed_state, cut_mll = None):
     toy_label = input_path.split("/")[-1]
         
     n_features = len(features)
-    HLF = np.zeros((n_events,n_features), dtype=np.float32)
+    HLF = np.zeros((n_events,n_features), dtype=np.float64)
     cut_vector = np.zeros(n_events, dtype=bool)
 
     start_idx = 0
