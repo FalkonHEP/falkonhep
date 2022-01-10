@@ -13,6 +13,7 @@ features = ['delta_phi', 'eta1', 'eta2', 'pt1', 'pt2']
 
 def execute_experiment(reference_path, data_path, output_path, sigtype, S, ntoys):
 
+    print("[--] S = {}".format(S))
     model_parameters = {
         'sigma' : 3.0,
         'penalty' : 1e-6,
