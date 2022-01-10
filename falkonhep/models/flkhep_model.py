@@ -17,10 +17,14 @@ class FalkonHEPModel(HEPModel):
         return np.hstack((ref_labels, data_labels))
 
     def __loglikelihood(self, f):
-        p = (f - f.min()) / (f.max() - f.min())
-        p[p==0] = 1e-10
-        p[p==1] = 1 - 1e-10
-        return torch.log(p / (1 - p))
+        p = (f + 1)/2
+        n = (1 - f)/2
+        p[p <= 0] = 1e-10
+        p[p >= 1] = 1 - 1e-10
+        n[n <= 0] = 1e-10
+        n[n >= 1] = 1 - 1e-10
+        
+        return torch.log(p / n)
 
     def make_predictions(self, model, reference, data_sample):
         ref_pred = model.predict(torch.from_numpy(reference).contiguous())
