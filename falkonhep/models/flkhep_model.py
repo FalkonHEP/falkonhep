@@ -1,4 +1,3 @@
-import time
 import torch
 import numpy as np
 
@@ -8,44 +7,29 @@ from falkon.options import FalkonOptions
 
 
 from falkonhep.models import HEPModel
-from falkonhep.utils import generate_seeds
 
 class FalkonHEPModel(HEPModel):
 
 
-    def __create_labels(self, ref_size, data_size):
+    def create_labels(self, ref_size, data_size):
         ref_labels = np.zeros(ref_size, dtype=np.float64) - 1
         data_labels = np.ones(data_size, dtype=np.float64)
         return np.hstack((ref_labels, data_labels))
 
-    def learn_t(self, R, B, S, features, model_parameters, sig_type, cut_mll = None, normalize = False, seeds = None):
-        """Method used to compute the t values 
+    def __loglikelihood(self, f):
+        p = (f - f.min()) / (f.max() - f.min())
+        p[p==0] = 1e-10
+        p[p==1] = 1 - 1e-10
+        return torch.log(p / (1 - p))
 
-        Args:
-            R (int): Size of the reference \(N_0\)
-            B (int): Expected background size
-            S (int): Expected signal size
-            features (List): List containing the name of the features used
-            model_parameters (Map): a map containing the parameters for LogistFalkon e.g.
-            ```
-            model_parameters = {
-                'sigma' : kernel lengthscale,
-                'penalty' : regularization parameter \(\lambda \),
-                'maxiter' : [Optional] maximum number of CG iterations (default 10000000),
-                'M' : number of Nystrom centers,
-                'cg_tol' : [Optional] tolerance of CG (default 1e-7),
-                'keops_active' : [Optional] if pyKeops will be used (default "no") 
-            }
-            ```
-            sig_type (int): Type of signal (0: no-signal, 1: resonant, 2: non-resonant).
-            cut_mll (int, optional): Cut MLL. Defaults to None.
-            normalize (bool, optional): If True data will be normalized before fitting the model. Defaults to False.
-            seeds (Tuple, optional): A tuple (reference_seed, data_seed) used to generate reference and data sample, if None two random seeds are generated. Defaults to None.
-        """
-        raise NotImplementedError()
-      
+    def make_predictions(self, model, reference, data_sample):
+        ref_pred = model.predict(torch.from_numpy(reference).contiguous())
+        data_pred = model.predict(torch.from_numpy(data_sample).contiguous())
+        
+        return self.__loglikelihood(ref_pred), self.__loglikelihood(data_pred)
 
-    def __build_model(self, model_parameters, weight):
+
+    def build_model(self, model_parameters, weight):
 
         def weight_fun(Y):
             wvec = torch.ones(Y.shape,dtype=Y.dtype)

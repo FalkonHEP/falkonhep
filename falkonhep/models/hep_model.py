@@ -1,8 +1,11 @@
 import os
 
+import time
+import torch
 import numpy as np
 
-from falkonhep.utils import read_data, normalize_features
+from falkonhep.utils import read_data, normalize_features, generate_seeds
+
 
 class HEPModel:
     """
@@ -93,7 +96,7 @@ class HEPModel:
             return self.__generate_nonresonant(R, B, S, features, cut_mll, normalize, ref_state, sig_state)
         raise Exception("Unknown signal type")
 
-    def __create_labels(self, ref_size, data_size):
+    def create_labels(self, ref_size, data_size):
         """Given reference and data size, it returns
 
         Args:
@@ -103,16 +106,19 @@ class HEPModel:
         Returns:
             (np.ndarray): returns the label vector
         """        
-        pass
+        raise NotImplementedError("This function is not implemented in general class HEPModel")
 
-    def __build_model(self, model_parameters, weight):
+    def build_model(self, model_parameters, weight):
         """Function used to build the model
 
         Args:
             model_parameters (Map): model parameters
             weight (float): weight
         """        
-        pass
+        raise NotImplementedError("This function is not implemented in general class HEPModel")
+
+    def make_predictions(self, model, reference, data_sample):
+        raise NotImplementedError("This function is not implemented in general class HEPModel")
 
     def learn_t(self, R, B, S, features, model_parameters, sig_type, cut_mll = None, normalize = False, seeds = None):
         """Method used to compute the t values 
@@ -128,7 +134,38 @@ class HEPModel:
             normalize (bool, optional): If True data will be normalized before fitting the model. Defaults to False.
             seeds (Tuple, optional): A tuple (reference_seed, data_seed) used to generate reference and data sample, if None two random seeds are generated. Defaults to None.
         """        
-        pass
+        ref_seed, data_seed = seeds if seeds is not None else generate_seeds(np.random.randint(100))
+        ref_state, data_state = np.random.RandomState(ref_seed), np.random.RandomState(data_seed)
+        
+        reference, data_sample, bck_size, sig_size = self.generate_dataset(R, B, S, features, cut_mll, normalize, sig_type, ref_state, data_state)
+        
+        data = np.vstack((reference, data_sample))
+        data_size = bck_size + sig_size if sig_size is not None else bck_size
+
+        # Labels
+        labels = self.create_labels(reference.shape[0], data_size)
+      
+        # Create and fit model
+        weight = B / R 
+        model = self.build_model(model_parameters, weight)
+
+        Xtorch = torch.from_numpy(data.reshape(data.shape[0], data.shape[1]))
+        Ytorch = torch.from_numpy(labels.reshape(-1, 1))        
+
+        train_time = time.time()
+        model.fit(Xtorch, Ytorch)
+        train_time = time.time() - train_time
+
+        ref_pred, data_pred = self.make_predictions(model, reference, data_sample)
+
+        # Compute Nw and t
+
+        Nw = weight*torch.sum(torch.exp(ref_pred))
+        diff = weight*torch.sum(1 - torch.exp(ref_pred))
+        t = 2 * (diff + torch.sum(data_pred).item())
+
+        del data_pred, reference, data_sample, Xtorch, Ytorch
+        return t, Nw, train_time, ref_seed, data_seed, ref_pred
 
     def save_result(self, fname, i, t, Nw, train_time, ref_seed, sig_seed):
         """Function which save the result of learn_t in a file

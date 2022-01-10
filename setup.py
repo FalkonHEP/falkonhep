@@ -8,7 +8,7 @@ def get_requirements():
 
 setup(
     name="falkonhep",
-    version="1.0.0",
+    version="1.1.0",
     description="Falkon for High Energy Physics",
     python_requires='~=3.8',
     setup_requires=[
