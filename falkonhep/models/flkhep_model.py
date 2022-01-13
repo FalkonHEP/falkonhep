@@ -26,11 +26,15 @@ class FalkonHEPModel(HEPModel):
         
         return torch.log(p / n)
 
-    def make_predictions(self, model, reference, data_sample):
-        ref_pred = model.predict(torch.from_numpy(reference).contiguous())
-        data_pred = model.predict(torch.from_numpy(data_sample).contiguous())
-        
-        return self.__loglikelihood(ref_pred), self.__loglikelihood(data_pred)
+    def predict(self, model, data):
+        preds = model.predict(torch.from_numpy(reference).contiguous())
+        return self.__loglikelihood(preds)
+
+    #def make_predictions(self, model, reference, data_sample):
+    #    ref_pred = model.predict(torch.from_numpy(reference).contiguous())
+    #    data_pred = model.predict(torch.from_numpy(data_sample).contiguous())
+    #    
+    #    return self.__loglikelihood(ref_pred), self.__loglikelihood(data_pred)
 
 
     def build_model(self, model_parameters, weight):

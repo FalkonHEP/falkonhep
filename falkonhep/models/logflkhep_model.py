@@ -15,10 +15,13 @@ class LogFalkonHEPModel(HEPModel):
         data_labels = np.ones(data_size, dtype=np.float64)
         return np.hstack((ref_labels, data_labels))
 
-    def make_predictions(self, model, reference, data_sample):
-        ref_pred = model.predict(torch.from_numpy(reference).contiguous())
-        data_pred = model.predict(torch.from_numpy(data_sample).contiguous())
-        return ref_pred, data_pred
+    def predict(self, model, data):
+        return model.predict(torch.from_numpy(data).contiguous())
+
+    #def make_predictions(self, model, reference, data_sample):
+    #    ref_pred = model.predict(torch.from_numpy(reference).contiguous())
+    #    data_pred = model.predict(torch.from_numpy(data_sample).contiguous())
+    #    return ref_pred, data_pred
         
     def build_model(self, model_parameters, weight):
 

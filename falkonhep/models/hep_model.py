@@ -4,6 +4,8 @@ import time
 import torch
 import numpy as np
 
+from sklearn.metrics import pairwise_distances
+
 from falkonhep.utils import read_data, normalize_features, generate_seeds
 
 
@@ -117,27 +119,32 @@ class HEPModel:
         """        
         raise NotImplementedError("This function is not implemented in general class HEPModel")
 
-    def make_predictions(self, model, reference, data_sample):
+    def predict(self, model, data):
         raise NotImplementedError("This function is not implemented in general class HEPModel")
 
-    def learn_t(self, R, B, S, features, model_parameters, sig_type, cut_mll = None, normalize = False, seeds = None):
+    def learn_t(self, R:int, B:int, S:int, features:list, model_parameters:dict, sig_type:int, 
+                cut:tuple = None, normalize:bool = False, seeds:tuple = None, nratio_option = None):       
         """Method used to compute the t values 
 
         Args:
             R (int): Size of the reference \(N_0\)
             B (int): Mean of the Poisson distribution from which the size of the background is sampled
             S (int): Mean of the Poisson distribution from which the size of the signal is sampled
-            features (List): List containing the name of the features used
-            model_parameters (Map): Dictionary containing the parameters for the model used
+            features (list[str]): List containing the name of the features used
+            model_parameters (dict): Dictionary containing the parameters for the model used
             sig_type (int): Type of signal (0: no-signal, 1: resonant, 2: non-resonant).
             cut_mll (int, optional): Cut MLL. Defaults to None.
             normalize (bool, optional): If True data will be normalized before fitting the model. Defaults to False.
-            seeds (Tuple, optional): A tuple (reference_seed, data_seed) used to generate reference and data sample, if None two random seeds are generated. Defaults to None.
+            seeds (tuple[int, int], optional): A tuple (reference_seed, data_seed) used to generate reference and data sample, if None two random seeds are generated. Defaults to None.
+            nratio_option (list[str], optional): List of features to perform predictions. Defaults to None.
+
         """        
         ref_seed, data_seed = seeds if seeds is not None else generate_seeds(np.random.randint(100))
         ref_state, data_state = np.random.RandomState(ref_seed), np.random.RandomState(data_seed)
+
+        preds = None # used if nratio_option is not None
         
-        reference, data_sample, bck_size, sig_size = self.generate_dataset(R, B, S, features, cut_mll, normalize, sig_type, ref_state, data_state)
+        reference, data_sample, bck_size, sig_size = self.generate_dataset(R, B, S, features, cut, normalize, sig_type, ref_state, data_state)
         
         data = np.vstack((reference, data_sample))
         data_size = bck_size + sig_size if sig_size is not None else bck_size
@@ -156,7 +163,8 @@ class HEPModel:
         model.fit(Xtorch, Ytorch)
         train_time = time.time() - train_time
 
-        ref_pred, data_pred = self.make_predictions(model, reference, data_sample)
+        ref_pred, data_pred = self.predict(model, reference), self.predict(model, data_sample)
+#        ref_pred, data_pred = self.make_predictions(model, reference, data_sample)
 
         # Compute Nw and t
 
@@ -165,7 +173,34 @@ class HEPModel:
         t = 2 * (diff + torch.sum(data_pred).item())
 
         del data_pred, reference, data_sample, Xtorch, Ytorch
-        return t, Nw, train_time, ref_seed, data_seed, ref_pred
+        
+        if nratio_option is not None:
+            # predictions with cut?? (change None with cut)
+            # if nratio_option map => features = nratio_option['features']
+            pr_data, _ = read_data(R, nratio_option, self.reference_path, np.random.RandomState(ref_seed), None)
+            preds = self.predict(model, pr_data)
+            
+        
+        return t, Nw, train_time, ref_seed, data_seed, preds#ref_pred
+
+    #def estimate_sigma(self, sample_size, features, rnd_state: np.random.RandomState = np.random.RandomState(42), verbose:bool=False):
+    #    """Compute the pairwise (euclidean) distance in a sample of reference data and 
+    #    return the 90th percentile
+#
+    #    Args:
+    #        sample_size (int): Size of the reference sample
+    #        features (list): List of features
+    #        rnd_state (np.random.RandomState): Pseudorandom generator to sample data
+    #        verbose (bool, optional): If true pairwise distances are plot and stored. Defaults to False.
+#
+    #    Returns:
+    #        float: the 90th percentile
+    #    """        
+    #    #### TODO: Pairwise distance computation
+    #    ref_sample, _ = read_data(sample_size, features, self.reference_path, rnd_state, None)
+    #    dist = [for x in np.tril(pairwise_distances(ref_sample)) if x != 0]
+    #    perc = np.percentile(dist, [90])
+    #    return perc
 
     def save_result(self, fname, i, t, Nw, train_time, ref_seed, sig_seed):
         """Function which save the result of learn_t in a file

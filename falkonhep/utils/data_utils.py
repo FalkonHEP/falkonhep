@@ -87,7 +87,7 @@ def normalize(X):
     
 
 
-def read_data(n_events, features, input_path, seed_state, cut_mll = None):
+def read_data(n_events, features, input_path, seed_state, cut : tuple = None):
     """Load dataset of size n_events from one or multiple h5 files
     Order of files read and order of samples extracted from single file
     are random.
@@ -97,10 +97,15 @@ def read_data(n_events, features, input_path, seed_state, cut_mll = None):
         features (List): list of features to be extracted from the .h5 file
         input_path (str): repository of the .h5 file (or multiple .h5 files)
         seed_state (np.random.RandomState): pseudorandom generator
-        cut_mll (float, optional): cut for mll feature. Defaults to None.
+        cut (tuple[str, float], optional): remove all rows s.t. has value for feature cut[0] lower than cut[1]. Defaults to None.
+
+    Raises:
+        Exception: Feature specified are not in the dataset
+        Exception: Not able to sample n_events events
 
     Returns:
-        (np.ndarray, np.ndarray): dataset and cut vector (None if cut_mll is None)
+        (np.ndarray, np.ndarray): dataset and cut vector (None if cut is None)
+
     """    
     
     n_files = len(glob.glob(input_path + '/*.h5'))
@@ -136,8 +141,8 @@ def read_data(n_events, features, input_path, seed_state, cut_mll = None):
         for j in range(n_features):
             current_samples[:,j] = np.array(f[features[j]], dtype=np.double)
         
-        if cut_mll is not None:
-            current_cut = np.array(f['mll']) > cut_mll
+        if cut is not None:
+            current_cut = np.array(f[cut[0]]) > cut[1]
 
         seed_state.shuffle(current_samples)
         
@@ -147,7 +152,7 @@ def read_data(n_events, features, input_path, seed_state, cut_mll = None):
             offset = n_samples
         
         HLF[start_idx:start_idx+offset, :] = current_samples[:offset, :]
-        if cut_mll is not None:
+        if cut is not None:
             cut_vector[start_idx:start_idx+offset] = current_cut[:offset]      
         start_idx += offset
         if start_idx == n_events:
@@ -159,6 +164,6 @@ def read_data(n_events, features, input_path, seed_state, cut_mll = None):
         raise Exception("Only {} events were sampled, instead of {}"
                         .format(start_idx, n_events))
     
-    if cut_mll is not None:
+    if cut is not None:
         return HLF, cut_vector
     return HLF, None
