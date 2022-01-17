@@ -93,3 +93,38 @@ def plot_reference(results_file, title, out_file, bins=6):
     ax.set_xlabel('$\mathbf{t}$')
     ax.legend(loc="upper right")
     plt.savefig("{}.pdf".format(out_file))
+
+
+def plot_sig(ref_file, data_file, title, out_file, bins=6):
+    tref_values, _, _ = read_results(ref_file)
+    rdata_values, _, _ = read_results(data_file)
+    fig, ax = plt.subplots()
+    ax.set_title(title)
+
+    hist_ref = ax.hist(tref_values, bins = bins, color='lightblue', edgecolor='dodgerblue',
+                    density=True, label='Reference')
+    hist_data = ax.hist(rdata_values, bins=bins, color='orange', edgecolor='darkorange',
+                    density=True, label='New Physics')
+
+    x_err, err = err_bar(hist_ref, tref_values.shape[0])
+    ax.errorbar(x_err, hist_ref[0], yerr = err, color='dodgerblue', marker='o', ms=6, ls='', lw=1)
+
+    x_err, err = err_bar(hist_data, rdata_values.shape[0])
+    ax.errorbar(x_err, hist_data[0], yerr = err, color='darkorange', marker='o', ms=6, ls='', lw=1)
+
+
+    best, nan, neg = return_best_chi2dof(tref_values, bins)
+    dof = int(best[0])
+    chi2_range = chi2.interval(alpha=0.999, df=dof)
+    r_len = chi2_range[1] - chi2_range[0]
+    x = np.arange(chi2_range[0] - r_len/2, chi2_range[1] + r_len/2, .05)
+        
+    chisq = stats.chi2.pdf(x, df=dof)       
+    ax.plot(x, chisq, color='r', lw=2, label='$\chi^2(${}$)$'.format(dof))
+
+    ax.set_ylim(bottom=0)
+
+    ax.set_ylabel('$\mathbf{P(t)}$')
+    ax.set_xlabel('$\mathbf{t}$')
+    ax.legend(loc="upper right")
+    plt.savefig("{}.pdf".format(out_file))
