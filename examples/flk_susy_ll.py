@@ -16,7 +16,7 @@ def execute_experiment(reference_path, data_path, output_path, sigtype, S, ntoys
     print("[--] S = {}".format(S))
     model_parameters = {
         'sigma' : 4.5,
-        'penalty' : 1e-5, # 1e-5
+        'penalty' : 1e-6, # 1e-5
         'maxiter' : 1000000,
         'M' : 10000,
         'keops_active': "auto",

@@ -21,15 +21,15 @@ def execute_experiment(reference_path, data_path, output_path, sigtype, S, ntoys
         'M' : 20000,
         'keops_active': "auto",
         'seed' : 12,
-        'cg_tol' : 1e-4
+        'cg_tol' : np.sqrt(1e-7)
     }
     model = FalkonHEPModel(reference_path, data_path, output_path, None)
 
-    for i in range(ntoys):
-        t, Nw, train_time, ref_seed, sig_seed, ref_pred = model.learn_t(R, B, 0, features, model_parameters, sig_type=0, normalize = True)
-        print("[REF] i: {}\tt: {}\tNw: {}\t training time: {}".format(i, t, Nw, train_time))
-        model.save_result("reference.log", i, t, Nw, train_time, ref_seed, sig_seed)
-    #for i in range(100):
+    #for i in range(ntoys):
+    #    t, Nw, train_time, ref_seed, sig_seed, ref_pred = model.learn_t(R, B, 0, features, model_parameters, sig_type=0, normalize = True)
+    #    print("[REF] i: {}\tt: {}\tNw: {}\t training time: {}".format(i, t, Nw, train_time))
+    #    model.save_result("reference.log", i, t, Nw, train_time, ref_seed, sig_seed)
+    for i in range(100):
         t, Nw, train_time, ref_seed, sig_seed, ref_pred = model.learn_t(R, B, S, features, model_parameters, sig_type=sigtype, normalize = True)
         print("[SIG] i: {}\tt: {}\tNw: {}\t training time: {}".format(i, t, Nw, train_time))
         model.save_result("signal.log", i, t, Nw, train_time, ref_seed, sig_seed)

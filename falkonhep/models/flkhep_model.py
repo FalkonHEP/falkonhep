@@ -22,8 +22,8 @@ class FalkonHEPModel(HEPModel):
         n = (1 - f)/2
 
 
-        p[p <= 0], n[n <= 0] = c, c #1e-10
-        p[p >= 1], n[n >= 1] = 1 - c, 1 - c# 1e-10
+     #   p[p <= 0], n[n <= 0] = c, c #1e-10
+     #   p[p >= 1], n[n >= 1] = 1 - c, 1 - c# 1e-10
 #        n[n >= 1] = 1 - 1e-10
         
         return torch.log(p / n)
