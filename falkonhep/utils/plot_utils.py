@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 import scipy.stats as stats
 from scipy.stats import chi2, chisquare, norm
+from .data_utils import compute_zscores
 
 def return_best_chi2dof(tobs, n_bins):
     
@@ -127,9 +128,26 @@ def plot_sig(ref_file, data_file, title, out_file, bins=6, verbose=False):
     x_err, err = err_bar(hist_data, rdata_values.shape[0])
     ax.errorbar(x_err, hist_data[0], yerr = err, color='darkorange', marker='o', ms=6, ls='', lw=1)
 
+#def compute_zscores(t_obs, dof=None, t_ref=None):
+
+    z_sc = compute_zscores(rdata_values, dof=None, t_ref=tref_values)
+        
+    res = '$z :$ {}'.format(round(np.median(z_sc),2))
 
     best, nan, neg = return_best_chi2dof(tref_values, bins)
     dof = int(best[0])
+    z_sc_chi2 = compute_zscores(rdata_values, dof=dof, t_ref=None)
+
+    res += '\n$t_{{\mathrm{{obs}}}} :$ {}\n$z_{{\chi^2}} :$ {}'.format(round(np.median(rdata_values), 2),
+                                                                        round(np.median(z_sc_chi2),2)) 
+        
+    xy_text=(0.85, 0.51)
+    print(res)
+    ax.annotate(res,  xy=xy_text, ha = 'center', va = 'center', size=14,
+                    xycoords='axes fraction')
+
+
+
     chi2_range = chi2.interval(alpha=0.999, df=dof)
     r_len = chi2_range[1] - chi2_range[0]
     x = np.arange(chi2_range[0] - r_len/2, chi2_range[1] + r_len/2, .05)

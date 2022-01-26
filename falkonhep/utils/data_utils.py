@@ -6,6 +6,25 @@ import datetime
 import time
 import pathlib
 import torch
+from scipy.stats import chi2, norm
+
+def z_score_chi2(t_obs, dof = None, t_ref = None):
+    assert (dof is not None) or (t_ref is not None)
+    if dof is not None:
+        p = chi2.cdf(float('inf'),dof)-chi2.cdf(t_obs,dof)
+    else: 
+        p = np.sum(t_ref >= t_obs) / t_ref.shape[0]
+
+    return norm.ppf(1 - p)
+
+def compute_zscores(t_obs, dof=None, t_ref=None):
+    assert (dof is not None) or (t_ref is not None)
+    z_scores = np.zeros(t_obs.shape[0])
+    for idx, t in enumerate(t_obs):
+        z_scores[idx] = z_score_chi2(t, dof = dof, t_ref = t_ref)                   
+    return z_scores
+
+
 
 
 def generate_seeds(toy_label):
