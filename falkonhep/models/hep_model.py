@@ -61,7 +61,7 @@ class HEPModel:
         return reference, data, bkg_size, sig_size
 
     def __generate_nonresonant(self, R, B, S, features, cut, normalize, ref_state, sig_state):
-        reference, c_vect_ref = read_data(R, features, reference_path, ref_state, cut)
+        reference, c_vect_ref = read_data(R, features, self.reference_path, ref_state, cut)
         bkg_size = sig_state.poisson(lam=B + S)
         bkg, c_vect_bkg = read_data(bkg_size, features, self.data_path, sig_state, cut)
         if normalize:
