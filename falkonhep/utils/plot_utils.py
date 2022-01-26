@@ -56,18 +56,28 @@ def err_bar(hist, n_samples):
     return x, err
 
 def read_results(fname):
+    t_values, Nw, train_time = [], [], []
+    num_nan, num_neg = 0, 0
+
     with open(fname, "r") as f:
         ris = f.readlines()
-    t_values, Nw, train_time = [], [], []
     for line in ris:
         splitted = line.split(",")
+        if float(splitted[1]) != float(splitted[1]):
+            num_nan+=1
+            continue
+        elif float(splitted[1]) < 0:
+            num_neg += 1
+            continue
         t_values.append(float(splitted[1]))
         Nw.append(float(splitted[2]))
         train_time.append(float(splitted[3]))
-    return np.array(t_values), np.array(Nw), np.array(train_time)
+    return np.array(t_values), np.array(Nw), np.array(train_time), num_nan, num_neg
 
-def plot_reference(results_file, title, out_file, bins=6):
-    t_values, _, _ = read_results(results_file)
+def plot_reference(results_file, title, out_file, bins=6, verbose=False):
+    t_values, _, _, num_nan, num_neg = read_results(results_file)
+    if verbose:
+        print("[--] Read reference results => NaN = {}\tNegative t= {}".format(num_nan, num_neg))
     fig, ax = plt.subplots()
     ax.set_title(title)
 
@@ -95,9 +105,14 @@ def plot_reference(results_file, title, out_file, bins=6):
     plt.savefig("{}.pdf".format(out_file))
 
 
-def plot_sig(ref_file, data_file, title, out_file, bins=6):
-    tref_values, _, _ = read_results(ref_file)
-    rdata_values, _, _ = read_results(data_file)
+def plot_sig(ref_file, data_file, title, out_file, bins=6, verbose=False):
+    tref_values, _, _, nan_ref, neg_ref = read_results(ref_file)
+    rdata_values, _, _, nan_data, neg_data = read_results(data_file)
+
+    if verbose:
+        print("[++] Results:\n\t[--] reference results => NaN = {}\tNegative t= {}".format(nan_ref, neg_ref))
+        print("\t[--] Read data results => NaN = {}\tNegative t= {}".format(nan_data, neg_data))
+
     fig, ax = plt.subplots()
     ax.set_title(title)
 
@@ -128,3 +143,4 @@ def plot_sig(ref_file, data_file, title, out_file, bins=6):
     ax.set_xlabel('$\mathbf{t}$')
     ax.legend(loc="upper right")
     plt.savefig("{}.pdf".format(out_file))
+   
