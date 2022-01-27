@@ -78,7 +78,7 @@ def read_results(fname):
 def plot_reference(results_file, title, out_file, bins=6, verbose=False):
     t_values, _, _, num_nan, num_neg = read_results(results_file)
     if verbose:
-        print("[--] Read reference results => NaN = {}\tNegative t= {}".format(num_nan, num_neg))
+        print("[++] Results:\n\tTotal = {}\tValid = {}\tInvalid = {}\tNegative = {}".format(len(t_values) + num_nan + num_neg, len(t_values), num_nan, num_neg))
     fig, ax = plt.subplots()
     ax.set_title(title)
 
@@ -111,8 +111,8 @@ def plot_sig(ref_file, data_file, title, out_file, bins=6, verbose=False):
     rdata_values, _, _, nan_data, neg_data = read_results(data_file)
 
     if verbose:
-        print("[++] Results:\n\t[--] reference results => NaN = {}\tNegative t= {}".format(nan_ref, neg_ref))
-        print("\t[--] Read data results => NaN = {}\tNegative t= {}".format(nan_data, neg_data))
+        print("[++] Results:\n\t[+] Reference results:\n\t\tTotal = {}\tValid = {}\tInvalid = {}\tNegative = {}".format(len(tref_values) + nan_ref + neg_ref, len(tref_values), nan_ref, neg_ref))
+        print("\t[+] Data results:\n\t\tTotal = {}\tValid = {}\tInvalid = {}\tNegative = {}".format(len(rdata_values) + nan_data + neg_data, len(rdata_values), nan_data, neg_data))
 
     fig, ax = plt.subplots()
     ax.set_title(title)
@@ -141,8 +141,12 @@ def plot_sig(ref_file, data_file, title, out_file, bins=6, verbose=False):
     res += '\n$t_{{\mathrm{{obs}}}} :$ {}\n$z_{{\chi^2}} :$ {}'.format(round(np.median(rdata_values), 2),
                                                                         round(np.median(z_sc_chi2),2)) 
         
+    if verbose:
+        print("\t[++] Z and t medians:\n\t\tZ [chi square] = {}\tZ [histogram] = {}\tt = {}".format(
+            round(np.median(z_sc_chi2), 2), 
+            round(np.median(z_sc), 2),
+            round(np.median(rdata_values), 2)))
     xy_text=(0.85, 0.51)
-    print(res)
     ax.annotate(res,  xy=xy_text, ha = 'center', va = 'center', size=14,
                     xycoords='axes fraction')
 
