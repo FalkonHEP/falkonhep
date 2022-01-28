@@ -6,7 +6,52 @@ import scipy.stats as stats
 from scipy.stats import chi2, chisquare, norm
 from .data_utils import compute_zscores
 
-def return_best_chi2dof(tobs, n_bins):
+
+def return_best_chi2dof(tobs):
+    """
+    Returns the most fitting value for dof assuming tobs follows a chi2_dof distribution,
+    computed with a kolmogorov-smirnov test, removing NANs and negative values.
+    Parameters
+    ----------
+    tobs : np.ndarray
+        observations
+    Returns
+    -------
+        best : tuple
+            tuple with best dof and corresponding chi2 test result
+        nans : int
+            number of nans in tobs
+        negs : int
+            number of negative tobs
+    """
+    
+    nans = len([t for t in tobs if str(t) == 'nan']) # count nans
+    negs = len([t for t in tobs if t < 0]) # count negative t values
+    
+    tobs = [t for t in tobs if str(t) != 'nan'] # remove nans
+    tobs = [t for t in tobs if t >= 0] # remove negative t values
+    
+    
+    dof_range = np.arange(np.nanmedian(tobs) - 10, np.nanmedian(tobs) + 10, 0.1)
+    
+    ks_tests = []
+    
+    for dof in dof_range:
+        
+        test = stats.kstest(tobs, lambda x:stats.chi2.cdf(x, df=dof))[0]
+        
+        ks_tests.append((dof, test))
+        
+    ks_tests = [test for test in ks_tests if test[1] != 'nan'] # remove nans
+    
+    ks_tests = [test for test in ks_tests if test[0] >= 0] # retain only positive dof
+        
+    best = min(ks_tests, key = lambda t: t[1]) # select best dof according to KS test result
+        
+    return best, nans, negs
+
+
+def return_best_chi2dof_old(tobs, n_bins):
     
     nans = len([t for t in tobs if str(t) == 'nan']) # count nans
     negs = len([t for t in tobs if t < 0]) # count negative t values
