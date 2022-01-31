@@ -127,7 +127,8 @@ def read_data(n_events, features, input_path, seed_state, cut : tuple = None):
 
     """    
     
-    n_files = len(glob.glob(input_path + '/*.h5'))
+    files = glob.glob(input_path + '/*.h5')
+    n_files = len(files)
 
     files_order = np.arange(n_files)                                                                                                                                                           
     seed_state.shuffle(files_order)
@@ -141,9 +142,10 @@ def read_data(n_events, features, input_path, seed_state, cut : tuple = None):
     start_idx = 0
     
     for num_file in files_order:
-        
+    #    print("[--] file: {}".format(files[num_file]))
         # Read file
-        f = h5py.File(input_path+ '/'+toy_label+str(num_file+1)+".h5", 'r')
+#        f = h5py.File(input_path+ '/'+toy_label+str(num_file+1)+".h5", 'r')
+        f = h5py.File(files[num_file], 'r')
         
         keys=list(f.keys())
         if len(keys)==0:
