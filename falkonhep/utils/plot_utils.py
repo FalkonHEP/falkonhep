@@ -134,7 +134,7 @@ def plot_reference(results_file, title, out_file, bins=6, verbose=False):
     ax.errorbar(x_err, hist[0], yerr = err, color='dodgerblue', marker='o', ms=6, ls='', lw=1)
 
 
-    best, nan, neg = return_best_chi2dof(t_values, bins)
+    best, nan, neg = return_best_chi2dof(t_values)
     dof = int(best[0])
     chi2_range = chi2.interval(alpha=0.999, df=dof)
     r_len = chi2_range[1] - chi2_range[0]
@@ -179,7 +179,7 @@ def plot_sig(ref_file, data_file, title, out_file, bins=6, verbose=False):
         
     res = '$z :$ {}'.format(round(np.median(z_sc),2))
 
-    best, nan, neg = return_best_chi2dof(tref_values, bins)
+    best, nan, neg = return_best_chi2dof(tref_values)
     dof = int(best[0])
     z_sc_chi2 = compute_zscores(rdata_values, dof=dof, t_ref=None)
 
@@ -205,6 +205,7 @@ def plot_sig(ref_file, data_file, title, out_file, bins=6, verbose=False):
     ax.plot(x, chisq, color='r', lw=2, label='$\chi^2(${}$)$'.format(dof))
 
     ax.set_ylim(bottom=0)
+    ax.set_xlim(left=0)
 
     ax.set_ylabel('$\mathbf{P(t)}$')
     ax.set_xlabel('$\mathbf{t}$')

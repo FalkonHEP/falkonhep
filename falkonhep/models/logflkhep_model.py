@@ -27,13 +27,16 @@ class LogFalkonHEPModel(HEPModel):
 
         cg_tol = model_parameters['cg_tol'] if 'cg_tol' in model_parameters else 1e-7
         keops_active = model_parameters['keops_active'] if 'keops_active' in model_parameters else "no"
+        use_cpu = model_parameters['use_cpu'] if 'use_cpu' in model_parameters else False
+
+
         kernel = GaussianKernel(torch.Tensor([model_parameters['sigma']]))
         configuration = {
             'kernel' : kernel,
             'penalty_list' : model_parameters['penalty_list'],
             'iter_list' : model_parameters['iter_list'],
             'M' : model_parameters['M'],
-            'options' : FalkonOptions(cg_tolerance=cg_tol, keops_active=keops_active),
+            'options' : FalkonOptions(cg_tolerance=cg_tol, keops_active=keops_active, use_cpu=use_cpu),
             'loss' : WeightedCrossEntropyLoss(kernel=kernel, neg_weight=weight)
         }
         if 'seed' in model_parameters:

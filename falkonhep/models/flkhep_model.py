@@ -49,6 +49,7 @@ class FalkonHEPModel(HEPModel):
         cg_tol = model_parameters['cg_tol'] if 'cg_tol' in model_parameters else 1e-7
         keops_active = model_parameters['keops_active'] if 'keops_active' in model_parameters else "no"
         maxiter = model_parameters['maxiter'] if 'maxiter' in model_parameters else 10000000
+        use_cpu = model_parameters['use_cpu'] if 'use_cpu' in model_parameters else False
 
         kernel = GaussianKernel(torch.Tensor([model_parameters['sigma']]))
         configuration = {
@@ -56,7 +57,7 @@ class FalkonHEPModel(HEPModel):
             'penalty' : model_parameters['penalty'],
             'maxiter' : maxiter,
             'M' : model_parameters['M'],
-            'options' : FalkonOptions(cg_tolerance=cg_tol, keops_active=keops_active),
+            'options' : FalkonOptions(cg_tolerance=cg_tol, keops_active=keops_active, use_cpu=use_cpu),
             'weight_fn' : weight_fun,
         }
         if 'seed' in model_parameters:
