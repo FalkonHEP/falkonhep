@@ -135,7 +135,7 @@ def plot_reference(results_file, title, out_file, bins=6, verbose=False):
 
 
     best, nan, neg = return_best_chi2dof(t_values)
-    dof = int(best[0])
+    dof = round(best[0],2)
     chi2_range = chi2.interval(alpha=0.999, df=dof)
     r_len = chi2_range[1] - chi2_range[0]
     x = np.arange(chi2_range[0] - r_len/2, chi2_range[1] + r_len/2, .05)
@@ -180,7 +180,7 @@ def plot_sig(ref_file, data_file, title, out_file, bins=6, verbose=False):
     res = '$z :$ {}'.format(round(np.median(z_sc),2))
 
     best, nan, neg = return_best_chi2dof(tref_values)
-    dof = int(best[0])
+    dof = round(best[0],2)
     z_sc_chi2 = compute_zscores(rdata_values, dof=dof, t_ref=None)
 
     res += '\n$t_{{\mathrm{{obs}}}} :$ {}\n$z_{{\chi^2}} :$ {}'.format(round(np.median(rdata_values), 2),
