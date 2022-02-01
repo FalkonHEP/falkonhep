@@ -24,12 +24,12 @@ def execute_experiment(reference_path, data_path, output_path, sigtype, S, ntoys
     }
     model = LogFalkonHEPModel(reference_path, data_path, output_path, None)
 
-    for i in range(100):
-        t, Nw, train_time, ref_seed, sig_seed, _ = model.learn_t(R, B, 0, features, model_parameters, sig_type=0, normalize = True )
+    for i in range(300):
+        t, Nw, train_time, ref_seed, sig_seed = model.learn_t(R, B, 0, features, model_parameters, sig_type=0, normalize = True )
         print("[REF] i: {}\tt: {}\tNw: {}\t training time: {}".format(i, t, Nw, train_time))
         model.save_result("reference.log", i, t, Nw, train_time, ref_seed, sig_seed)
-#    for i in range(ntoys):
-        t, Nw, train_time, ref_seed, sig_seed, _ = model.learn_t(R, B, S, features, model_parameters, sig_type=sigtype, normalize = True)
+    for i in range(100):
+        t, Nw, train_time, ref_seed, sig_seed = model.learn_t(R, B, S, features, model_parameters, sig_type=sigtype, normalize = True)
         print("[SIG] i: {}\tt: {}\tNw: {}\t training time: {}".format(i, t, Nw, train_time))
         model.save_result("signal.log", i, t, Nw, train_time, ref_seed, sig_seed)
     plot_reference(model.output_path + "/reference.log", "DiMuon reference", model.output_path + "/reference", bins=6)
