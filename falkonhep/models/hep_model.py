@@ -120,8 +120,12 @@ class HEPModel:
         """        
         raise NotImplementedError("This function is not implemented in general class HEPModel")
 
-    def predict(self, model, data):
+    def predict(self, data):
         raise NotImplementedError("This function is not implemented in general class HEPModel")
+
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
 
     def learn_t(self, R:int, B:int, S:int, features:list, model_parameters:dict, sig_type:int, 
                 cut:tuple = None, normalize:bool = False, seeds:tuple = None):       
@@ -141,9 +145,6 @@ class HEPModel:
 
         """        
         ref_seed, data_seed = seeds if seeds is not None else generate_seeds(np.random.randint(100))
-        #ref_state, data_state = np.random.RandomState(ref_seed), np.random.RandomState(data_seed)
-
-        preds = None # used if pred_features is not None
         
         reference, data_sample, bck_size, sig_size = self.generate_dataset(R, B, S, features, cut, 
             normalize, sig_type, ref_seed, data_seed)
@@ -156,17 +157,16 @@ class HEPModel:
       
         # Create and fit model
         weight = B / R 
-        model = self.build_model(model_parameters, weight)
+        self.build_model(model_parameters, weight)
 
         Xtorch = torch.from_numpy(data.reshape(data.shape[0], data.shape[1]))
         Ytorch = torch.from_numpy(labels.reshape(-1, 1))        
 
         train_time = time.time()
-        model.fit(Xtorch, Ytorch)
+        self.fit(Xtorch, Ytorch)
         train_time = time.time() - train_time
 
-        ref_pred, data_pred = self.predict(model, reference), self.predict(model, data_sample)
-#        ref_pred, data_pred = self.make_predictions(model, reference, data_sample)
+        ref_pred, data_pred = self.predict(reference), self.predict(data_sample)
 
         # Compute Nw and t
 
@@ -175,41 +175,8 @@ class HEPModel:
         t = 2 * (diff + torch.sum(data_pred).item())
 
         del data_pred, reference, data_sample, Xtorch, Ytorch
-        return t, Nw, train_time, ref_seed, data_seed, ref_pred.numpy().reshape(-1)#ref_pred
+        return t, Nw, train_time, ref_seed, data_seed#, ref_pred.numpy().reshape(-1)#ref_pred
 
-    #def estimate_sigma(self, sample_size, features, rnd_state: np.random.RandomState = np.random.RandomState(42), verbose:bool=False):
-    #    """Compute the pairwise (euclidean) distance in a sample of reference data and 
-    #    return the 90th percentile
-#
-    #    Args:
-    #        sample_size (int): Size of the reference sample
-    #        features (list): List of features
-    #        rnd_state (np.random.RandomState): Pseudorandom generator to sample data
-    #        verbose (bool, optional): If true pairwise distances are plot and stored. Defaults to False.
-#
-    #    Returns:
-    #        float: the 90th percentile
-    #    """        
-    #    #### TODO: Pairwise distance computation
-    #    ref_sample, _ = read_data(sample_size, features, self.reference_path, rnd_state, None)
-    #    dist = [for x in np.tril(pairwise_distances(ref_sample)) if x != 0]
-    #    perc = np.percentile(dist, [90])
-    #    return perc
-
-  #  def get_toy(self, R, B, S, ref_seed, sig_seed, features, cut, sig_type, reference_pred):
-  #      """Compute n ratio for a given toy and prediction
-#
-  #      Args:
-  #          R (int): [description]
-  #          B (int): [description]
-  #          S (int): [description]
-  #          feature (str): feature to extract
-  #          reference_pred (list[float]): Prediction made on reference sample (obtainable with learn_t)
-  #      """        
-  #      return self.generate_dataset(R, B, S, features, cut, False, sig_type,
-  #          np.random.RandomState(ref_seed), np.random.RandomState(sig_seed))
-  #      #return ref, data, bck
-  #      #pass
 
 
     def save_result(self, fname, i, t, Nw, train_time, ref_seed, sig_seed):

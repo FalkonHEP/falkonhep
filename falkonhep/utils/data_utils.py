@@ -95,10 +95,10 @@ def normalize(X):
         mean = np.mean(column)
         std = np.std(column)
     
-        if np.min(column) < 0:
-            column = (column-mean)*1./ std
-        elif np.max(column) > 1.0:                                                                                                                                        
-            column = column *1./ mean
+        #if np.min(column) < 0:
+        column = (column-mean)*1./ std
+        #elif np.max(column) > 1.0:                                                                                                                                        
+        #    column = column *1./ mean
     
         X_norm[:, j] = column
     

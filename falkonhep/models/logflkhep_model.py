@@ -15,8 +15,8 @@ class LogFalkonHEPModel(HEPModel):
         data_labels = np.ones(data_size, dtype=np.float64)
         return np.hstack((ref_labels, data_labels))
 
-    def predict(self, model, data):
-        return model.predict(torch.from_numpy(data).contiguous())
+    def predict(self, data):
+        return self.model.predict(torch.from_numpy(data).contiguous())
 
     #def make_predictions(self, model, reference, data_sample):
     #    ref_pred = model.predict(torch.from_numpy(reference).contiguous())
@@ -41,4 +41,4 @@ class LogFalkonHEPModel(HEPModel):
         }
         if 'seed' in model_parameters:
             configuration['seed'] = model_parameters['seed']
-        return LogisticFalkon(**configuration)
+        self.model = LogisticFalkon(**configuration)

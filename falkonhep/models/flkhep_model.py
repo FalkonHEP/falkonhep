@@ -28,8 +28,8 @@ class FalkonHEPModel(HEPModel):
         
         return torch.log(p / n)
 
-    def predict(self, model, data):
-        preds = model.predict(torch.from_numpy(data).contiguous())
+    def predict(self, data):
+        preds = self.model.predict(torch.from_numpy(data).contiguous())
         return self.__loglikelihood(preds)
 
     #def make_predictions(self, model, reference, data_sample):
@@ -62,4 +62,4 @@ class FalkonHEPModel(HEPModel):
         }
         if 'seed' in model_parameters:
             configuration['seed'] = model_parameters['seed']
-        return Falkon(**configuration)
+        self.model= Falkon(**configuration)
