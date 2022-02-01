@@ -1,19 +1,6 @@
-#!/usr/bin/env python3
-
 import argparse as ap
 from falkonhep.utils import plot_sig
 
-
-#data_path = "./susy/falkon/500"
-#out_file = "./susy_falkon_500"
-#title = "Falkon: Susy NS = 500 (100 vs 100)"
-#
-#def plot_results(ref_file, data_file, title, out_file, bins=6):
-#    ref_file = data_path + "/reference.log"
-#    data_file = data_path + "/signal.log"
-#    #def plot_sig(ref_file, data_file, title, out_file, bins=6):
-#    plot_sig(ref_file, data_file, title, out_file, bins=bins)
-    
 
 if __name__ == "__main__":
     parser = ap.ArgumentParser()

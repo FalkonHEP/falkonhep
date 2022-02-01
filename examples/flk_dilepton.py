@@ -30,7 +30,7 @@ def execute_experiment(reference_path, data_path, output_path, sigtype, S, ntoys
     #    print("[REF] i: {}\tt: {}\tNw: {}\t training time: {}".format(i, t, Nw, train_time))
     #    model.save_result("reference.log", i, t, Nw, train_time, ref_seed, sig_seed)
     for i in range(100):
-        t, Nw, train_time, ref_seed, sig_seed, ref_pred = model.learn_t(R, B, S, features, model_parameters, sig_type=sigtype, normalize = True)
+        t, Nw, train_time, ref_seed, sig_seed = model.learn_t(R, B, S, features, model_parameters, sig_type=sigtype, normalize = True)
         print("[SIG] i: {}\tt: {}\tNw: {}\t training time: {}".format(i, t, Nw, train_time))
         model.save_result("signal.log", i, t, Nw, train_time, ref_seed, sig_seed)
     plot_reference(model.output_path + "/reference.log", "DiMuon reference", model.output_path + "/reference", bins=6)
