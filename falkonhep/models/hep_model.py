@@ -99,6 +99,15 @@ class HEPModel:
             return self.__generate_nonresonant(R, B, S, features, cut, normalize, ref_state, sig_state)
         raise Exception("Unknown signal type")
 
+#    def pack_dataset(self, reference, data_sample, bck_size, sig_size):
+#        data = np.vstack((reference, data_sample))
+#        data_size = bck_size + sig_size if sig_size is not None else bck_size
+#        labels = self.create_labels(reference.shape[0], data_size)
+#        return
+
+
+
+
     def create_labels(self, ref_size, data_size):
         """Given reference and data size, it returns
 
