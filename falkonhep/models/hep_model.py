@@ -22,12 +22,19 @@ class HEPModel:
             data_path (str): path of directory containing data used as datasample (set of .h5 files)
             output_path (str): directory in which results will be stored (If the directory doesn't exist it will be created)
             options ([type]): [description]
-        """        
+        """
+        self.model = None        
         self.reference_path = reference_path
         self.data_path = data_path
         self.output_path = output_path
         self.options = options
         os.makedirs(output_path, exist_ok=True)
+
+    @property
+    def model_seed(self):
+        if self.model is not None:
+            return self.model.seed
+        raise Exception("Model is not built yet!")
 
     def __generate_nosignal(self, R, B, S, features, cut, normalize, ref_state):
         bkg_size = ref_state.poisson(lam=B)
@@ -98,13 +105,6 @@ class HEPModel:
         elif sig_type == 2:
             return self.__generate_nonresonant(R, B, S, features, cut, normalize, ref_state, sig_state)
         raise Exception("Unknown signal type")
-
-#    def pack_dataset(self, reference, data_sample, bck_size, sig_size):
-#        data = np.vstack((reference, data_sample))
-#        data_size = bck_size + sig_size if sig_size is not None else bck_size
-#        labels = self.create_labels(reference.shape[0], data_size)
-#        return
-
 
 
 
@@ -202,5 +202,6 @@ class HEPModel:
             sig_seed (int): seed to reproduce the data sample
         """        
         with open(self.output_path + "/{}".format(fname), "a") as f:
-            f.write("{},{},{},{},{},{}\n".format(i, t, Nw, train_time, ref_seed, sig_seed))
+            f.write("{},{},{},{},{},{},{}\n".format(i, t, Nw, train_time, ref_seed, sig_seed, self.model_seed))
+
 
