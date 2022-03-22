@@ -14,31 +14,36 @@ features = ['lep1_eta', 'lep1_pT', 'lep1_phi', 'lep2_eta', 'lep2_pT', 'lep2_phi'
 def execute_experiment(reference_path, data_path, output_path, sigtype, S, ntoys_ref, ntoys_data):
 
     rnd_state = np.random.RandomState(12)
-    print("[--] S = {}".format(S))
     model_parameters = {
         'sigma' : 4.5,
         'penalty_list' : [1e-6],
         'iter_list' : [1000000],
         'M' : 10000,
         'keops_active': "no",
+        "use_cpu" : True,
         'seed' : 12,
         'cg_tol' : np.sqrt(1e-7)
     }
-    model = LogFalkonHEPModel(reference_path, data_path, output_path, None)
+    
+    # eventually, normalization function can be specified as last argument
+    model = LogFalkonHEPModel(reference_path, data_path, output_path)
 
+#(self, R:int, B:int, S:int, features:list, model_parameters:dict, sig_type:int, 
+#                cut:tuple = None, normalize:bool = False, seeds:tuple = None)
+#
     for i in range(ntoys_ref):
         model_parameters['seed'] = rnd_state.randint(low = 0, high = 2**32)
-        t, Nw, train_time, ref_seed, sig_seed = model.learn_t(R, B, 0, features, model_parameters, sig_type=0, normalize = False)
-        print("[REF] i: {}/{}\tt: {}\tNw: {}\t training time: {}".format(i+1, ntoys_ref, t, Nw, train_time))
+        t, Nw, train_time, ref_seed, sig_seed = model.learn_t(R=R, B=B, S=0, features = features, model_parameters=model_parameters, sig_type=0, cut=None, seeds=None, normalize = False)
+        print("[REF] i: {}/{}\tt: {}\ttraining time: {}".format(i+1, ntoys_ref, round(t, 2), round(train_time, 2)))
         model.save_result("reference.log", i, t, Nw, train_time, ref_seed, sig_seed)
     for i in range(ntoys_data):
         model_parameters['seed'] = rnd_state.randint(low = 0, high = 2**32)
         t, Nw, train_time, ref_seed, sig_seed = model.learn_t(R, B, S, features, model_parameters, sig_type=sigtype, normalize = False)
-        print("[SIG] i: {}/{}\tt: {}\tNw: {}\t training time: {}".format(i+1, ntoys_data, t, Nw, train_time))
-        model.save_result("signal.log", i, t, Nw, train_time, ref_seed, sig_seed)
+        print("[SIG] i: {}/{}\tt: {}\ttraining time: {}".format(i+1, ntoys_data, round(t, 2), round(train_time, 2)))
+        model.save_result("signal_{}.log".format(S), i, t, Nw, train_time, ref_seed, sig_seed)
     
     plot_reference(model.output_path + "/reference.log", "SUSY (low level) reference", model.output_path + "/reference", bins=6, verbose = False)
-    plot_sig(model.output_path + "/reference.log", model.output_path + "/signal.log", "SUSY (low level)", model.output_path + "/signal", bins=6, verbose = True)
+    plot_sig(model.output_path + "/reference.log", model.output_path + "/signal_{}.log".format(S), "SUSY (low level)", model.output_path + "/signal_{}".format(S), bins=6, verbose = True)
 
 if __name__ == "__main__":
 

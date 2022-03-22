@@ -205,7 +205,7 @@ def plot_sig(ref_file, data_file, title, out_file, bins=6, verbose=False):
     ax.plot(x, chisq, color='r', lw=2, label='$\chi^2(${}$)$'.format(dof))
 
     ax.set_ylim(bottom=0)
-    ax.set_xlim(left=0)
+   # ax.set_xlim(left=0)
 
     ax.set_ylabel('$\mathbf{P(t)}$')
     ax.set_xlabel('$\mathbf{t}$')

@@ -6,7 +6,7 @@ import numpy as np
 
 from sklearn.metrics import pairwise_distances
 
-from falkonhep.utils import read_data, normalize_features, generate_seeds
+from falkonhep.utils import read_data, generate_seeds, normalize_features
 
 
 class HEPModel:
@@ -14,35 +14,35 @@ class HEPModel:
     Generic model
     """
 
-    def __init__(self, reference_path, data_path, output_path, options):
+    def __init__(self, reference_path, data_path, output_path, norm_fun = normalize_features):
         """Create a model for HEP anomaly detection
 
         Args:
             reference_path (str): path of directory containing data used as reference data (set of .h5 files)
             data_path (str): path of directory containing data used as datasample (set of .h5 files)
             output_path (str): directory in which results will be stored (If the directory doesn't exist it will be created)
-            options ([type]): [description]
+            norm_fun (Optional, Callable): function used to normalize data. It takes the reference and data samples (two numpy.ndarray) and returns two numpy.ndarray representing the normalized reference and data samples (default to Higgs normalization)
         """
         self.model = None        
         self.reference_path = reference_path
         self.data_path = data_path
         self.output_path = output_path
-        self.options = options
+        self.normalize_features = norm_fun if norm_fun is not None else normalize_features
         os.makedirs(output_path, exist_ok=True)
-
+        
     @property
     def model_seed(self):
         if self.model is not None:
             return self.model.seed
         raise Exception("Model is not built yet!")
-
+    
     def __generate_nosignal(self, R, B, S, features, cut, normalize, ref_state):
         bkg_size = ref_state.poisson(lam=B)
         bkg, c_vect_bkg = read_data(R + bkg_size, features, self.reference_path, ref_state, cut)
         reference = bkg[:R,:]
         bkg = bkg[R:, :]
         if normalize:
-            reference, bkg = normalize_features(reference, bkg)
+            reference, bkg = self.normalize_features(reference, bkg)
         if cut is not None:
             c_vect_ref, c_vect_bkg = c_vect_bkg[ : R], c_vect_bkg[R : ]
             return reference[c_vect_ref, :], bkg[c_vect_bkg, :], len(bkg[c_vect_bkg, :]), None
@@ -60,11 +60,11 @@ class HEPModel:
             reference = reference[c_vect_ref, :]
             data = np.vstack((bkg[c_vect_bkg, :], sig[c_vect_sig, :]))
             if normalize:
-                reference, data = normalize_features(reference, data)
+                reference, data = self.normalize_features(reference, data)
             return reference, data, len(bkg[c_vect_bkg, :]), len(sig[c_vect_sig, :])
         data = np.vstack((bkg, sig))
         if normalize:
-            reference, data = normalize_features(reference, data)
+            reference, data = self.normalize_features(reference, data)
         return reference, data, bkg_size, sig_size
 
     def __generate_nonresonant(self, R, B, S, features, cut, normalize, ref_state, sig_state):
@@ -72,7 +72,7 @@ class HEPModel:
         bkg_size = sig_state.poisson(lam=B + S)
         bkg, c_vect_bkg = read_data(bkg_size, features, self.data_path, sig_state, cut)
         if normalize:
-            reference, bkg = normalize_features(reference, bkg)
+            reference, bkg = self.normalize_features(reference, bkg)
         if cut is not None:
             return reference[c_vect_ref, :], bkg[c_vect_bkg, :], len(bkg[c_vect_bkg, :]), None
         return reference, bkg, bkg_size, None
@@ -154,16 +154,17 @@ class HEPModel:
 
         """        
         ref_seed, data_seed = seeds if seeds is not None else generate_seeds(np.random.randint(100))
-        
-        reference, data_sample, bck_size, sig_size = self.generate_dataset(R, B, S, features, cut, 
-            normalize, sig_type, ref_seed, data_seed)
+
+
+        reference, data_sample, bck_size, sig_size = self.generate_dataset(R, B, S, features, cut=cut, 
+            normalize=normalize, sig_type=sig_type, ref_seed=ref_seed, sig_seed=data_seed)
         
         data = np.vstack((reference, data_sample))
         data_size = bck_size + sig_size if sig_size is not None else bck_size
 
         # Labels
         labels = self.create_labels(reference.shape[0], data_size)
-      
+            
         # Create and fit model
         weight = B / R 
         self.build_model(model_parameters, weight)

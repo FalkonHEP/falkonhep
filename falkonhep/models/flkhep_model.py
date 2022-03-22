@@ -30,7 +30,7 @@ class FalkonHEPModel(HEPModel):
 
     def build_model(self, model_parameters, weight):
 
-        def weight_fun(Y):
+        def weight_fun(Y, X, idx):
             wvec = torch.ones(Y.shape,dtype=Y.dtype)
             wvec[Y==-1] = weight
             return wvec

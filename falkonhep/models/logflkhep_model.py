@@ -27,12 +27,13 @@ class LogFalkonHEPModel(HEPModel):
         seed = model_parameters['seed'] if 'seed' in model_parameters else None
 
         kernel = GaussianKernel(torch.Tensor([model_parameters['sigma']]))
+        print("[--] weight: {}".format(weight))
         configuration = {
             'kernel' : kernel,
             'penalty_list' : model_parameters['penalty_list'],
             'iter_list' : model_parameters['iter_list'],
             'M' : model_parameters['M'],
-            'options' : FalkonOptions(cg_tolerance=cg_tol, keops_active=keops_active, use_cpu=use_cpu),
+            'options' : FalkonOptions(cg_tolerance=cg_tol, keops_active=keops_active, use_cpu=use_cpu, debug = False),
             'loss' : WeightedCrossEntropyLoss(kernel=kernel, neg_weight=weight),
             'seed' : seed
         }

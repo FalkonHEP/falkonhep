@@ -1,3 +1,0 @@
-h5py>=3.6
-matplotlib>=3.5
-scipy==1.6.3
