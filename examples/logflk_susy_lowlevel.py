@@ -20,7 +20,7 @@ def execute_experiment(reference_path, data_path, output_path, sigtype, S, ntoys
         'iter_list' : [1000000],
         'M' : 10000,
         'keops_active': "no",
-        "use_cpu" : True,
+        "use_cpu" : False,
         'seed' : 12,
         'cg_tol' : np.sqrt(1e-7)
     }
