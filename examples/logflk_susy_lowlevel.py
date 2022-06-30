@@ -18,7 +18,7 @@ def execute_experiment(reference_path, data_path, output_path, sigtype, S, ntoys
         'sigma' : 4.5,
         'penalty_list' : [1e-6],
         'iter_list' : [1000000],
-        'M' : 10000,
+        'M' : 1000,
         'keops_active': "no",
         "use_cpu" : False,
         'seed' : 12,
@@ -34,12 +34,12 @@ def execute_experiment(reference_path, data_path, output_path, sigtype, S, ntoys
     for i in range(ntoys_ref):
         model_parameters['seed'] = rnd_state.randint(low = 0, high = 2**32)
         t, Nw, train_time, ref_seed, sig_seed = model.learn_t(R=R, B=B, S=0, features = features, model_parameters=model_parameters, sig_type=0, cut=None, seeds=None, normalize = False)
-        print("[REF] i: {}/{}\tt: {}\ttraining time: {}".format(i+1, ntoys_ref, round(t, 2), round(train_time, 2)))
+        print("[REF] i: {}/{}\tt: {}\ttraining time: {}".format(i+1, ntoys_ref, round(t.item(), 2), round(train_time, 2)))
         model.save_result("reference.log", i, t, Nw, train_time, ref_seed, sig_seed)
     for i in range(ntoys_data):
         model_parameters['seed'] = rnd_state.randint(low = 0, high = 2**32)
         t, Nw, train_time, ref_seed, sig_seed = model.learn_t(R, B, S, features, model_parameters, sig_type=sigtype, normalize = False)
-        print("[SIG] i: {}/{}\tt: {}\ttraining time: {}".format(i+1, ntoys_data, round(t, 2), round(train_time, 2)))
+        print("[SIG] i: {}/{}\tt: {}\ttraining time: {}".format(i+1, ntoys_data, round(t.item(), 2), round(train_time, 2)))
         model.save_result("signal_{}.log".format(S), i, t, Nw, train_time, ref_seed, sig_seed)
     
     plot_reference(model.output_path + "/reference.log", "SUSY (low level) reference", model.output_path + "/reference", bins=6, verbose = False)

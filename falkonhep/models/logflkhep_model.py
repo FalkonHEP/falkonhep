@@ -27,7 +27,7 @@ class LogFalkonHEPModel(HEPModel):
         seed = model_parameters['seed'] if 'seed' in model_parameters else None
 
         kernel = GaussianKernel(torch.Tensor([model_parameters['sigma']]))
-        print("[--] weight: {}".format(weight))
+#        print("[--] weight: {}".format(weight))
         configuration = {
             'kernel' : kernel,
             'penalty_list' : model_parameters['penalty_list'],
