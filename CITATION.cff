@@ -1,0 +1,23 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Falkon-NPLM
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Marco
+    family-names: Letizia
+    email: marco.letizia@edu.unige.it
+    affiliation: 'MaLGa, University of Genoa'
+    orcid: 'https://orcid.org/0000-0001-9641-4352'
+  - given-names: Marco
+    family-names: Rando
+    affiliation: 'MaLGa, University of Genoa'
+repository-code: 'https://github.com/FalkonHEP/falkonhep'
+repository: 'https://github.com/FalkonHEP/DQM'
+abstract: >-
+  Implementation of the NPLM model for goodness-of-fit based
+  on kernel methods (Falkon library).
